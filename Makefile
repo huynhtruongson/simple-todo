@@ -13,5 +13,9 @@ migrate-up:
 migrate-down:
 	migrate -path db/migration -database "postgresql://postgres:admin@localhost:5432/simple_todo?sslmode=disable" -verbose down
 
+gen-mock:
+	mockery --dir lib --all --output mocks/lib --with-expecter
+	mockery --dir services/user --all --output mocks/user --with-expecter
+	mockery --dir services/task --all --output mocks/task --with-expecter
 unit-test:
 	go test -v -cover ./...

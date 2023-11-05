@@ -4,17 +4,18 @@ import (
 	"context"
 	"testing"
 
-	"github.com/sondev/todo-list/common"
-	mock_db "github.com/sondev/todo-list/mock"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
-	task_mock "github.com/sondev/todo-list/services/task/mock/repo"
+	"github.com/huynhtruongson/simple-todo/common"
+	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
+	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListTaskBiz_ListTask(t *testing.T) {
 	ctx := context.Background()
-	taskRepo := &task_mock.MockTaskRepo{}
-	db := &mock_db.MockDB{}
+	taskRepo := mock_repo.NewTaskRepo(t)
+	db := mock_db.NewDB(t)
 	mockTask := task_entity.Task{
 		TaskID: 1,
 		UserID: 1,
@@ -65,8 +66,8 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 				},
 			},
 			mock: func() {
-				taskRepo.On("CountTask", ctx, db).Once().Return(1, nil)
-				taskRepo.On("GetTasksWithFilter", ctx, db, 10, 0).Once().Return([]task_entity.Task{mockTask}, nil)
+				taskRepo.EXPECT().CountTask(ctx, db).Once().Return(1, nil)
+				taskRepo.EXPECT().GetTasksWithFilter(ctx, db, 10, 0).Once().Return([]task_entity.Task{mockTask}, nil)
 			},
 			expectErr: nil,
 		},

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sondev/todo-list/lib"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
-	"github.com/sondev/todo-list/utils"
+	"github.com/huynhtruongson/simple-todo/lib"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
+	"github.com/huynhtruongson/simple-todo/utils"
 )
 
 type TaskRepo struct{}

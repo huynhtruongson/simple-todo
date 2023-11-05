@@ -4,18 +4,19 @@ import (
 	"context"
 	"testing"
 
-	mock_db "github.com/sondev/todo-list/mock"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
-	task_mock "github.com/sondev/todo-list/services/task/mock/repo"
+	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
+	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestDeleteTaskBiz_DeleteTask(t *testing.T) {
 	ctx := context.Background()
-	taskRepo := &task_mock.MockTaskRepo{}
-	db := &mock_db.MockDB{}
-	tx := &mock_db.MockTx{}
+	taskRepo := mock_repo.NewTaskRepo(t)
+	db := mock_db.NewDB(t)
+	tx := mock_db.NewTx(t)
 	tests := []struct {
 		name      string
 		taskId    int
@@ -26,10 +27,10 @@ func TestDeleteTaskBiz_DeleteTask(t *testing.T) {
 			name:   "should Delete task successfully",
 			taskId: 1,
 			mock: func() {
-				taskRepo.On("GetTasksByIds", ctx, db, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
-				db.On("BeginTx", ctx, mock.Anything).Once().Return(tx, nil)
-				taskRepo.On("DeleteTask", ctx, tx, 1).Once().Return(nil)
-				tx.On("Commit", ctx).Once().Return(nil)
+				taskRepo.EXPECT().GetTasksByIds(ctx, db, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
+				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
+				taskRepo.EXPECT().DeleteTask(ctx, tx, 1).Once().Return(nil)
+				tx.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr: nil,
 		},

@@ -3,10 +3,11 @@ package user_biz
 import (
 	"context"
 
+	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/lib"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+
 	"github.com/jackc/pgx/v5"
-	"github.com/sondev/todo-list/common"
-	"github.com/sondev/todo-list/lib"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
 )
 
 type UserRepo interface {

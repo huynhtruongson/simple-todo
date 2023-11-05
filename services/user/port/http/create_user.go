@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sondev/todo-list/common"
-	"github.com/sondev/todo-list/lib"
-	user_biz "github.com/sondev/todo-list/services/user/business"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
-	user_repo "github.com/sondev/todo-list/services/user/repository"
+	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/lib"
+	user_biz "github.com/huynhtruongson/simple-todo/services/user/business"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+	user_repo "github.com/huynhtruongson/simple-todo/services/user/repository"
 )
 
 func CreateUser(db lib.DB) func(*gin.Context) {
@@ -24,7 +24,12 @@ func CreateUser(db lib.DB) func(*gin.Context) {
 
 		userID, err := biz.CreateUser(ctx, user)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, err)
+			code := http.StatusBadRequest
+			appErr, ok := err.(*common.AppError)
+			if ok {
+				code = appErr.Code
+			}
+			ctx.JSON(code, err)
 			return
 		}
 		ctx.JSON(http.StatusOK, common.NewSimpleSuccessResponse(userID))

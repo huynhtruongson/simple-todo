@@ -3,17 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	task_port "github.com/huynhtruongson/simple-todo/services/task/port/http"
+	user_port "github.com/huynhtruongson/simple-todo/services/user/port/http"
+	"github.com/huynhtruongson/simple-todo/utils"
+
 	"github.com/jackc/pgx/v5"
-	task_port "github.com/sondev/todo-list/services/task/port/http"
-	user_port "github.com/sondev/todo-list/services/user/port/http"
 )
 
 func main() {
 	r := gin.Default()
-	db, err := pgx.Connect(context.Background(), "postgresql://postgres:admin@localhost:5432/simple_todo?sslmode=disable")
+	config, err := utils.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load configuration", err)
+	}
+	db, err := pgx.Connect(context.Background(), config.DBAddress)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -34,5 +41,5 @@ func main() {
 			task.PUT("/delete/:id", task_port.DeleteTask(db))
 		}
 	}
-	r.Run(":3000")
+	r.Run(config.ServerPort)
 }

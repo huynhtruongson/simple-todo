@@ -4,17 +4,17 @@ import (
 	"context"
 	"testing"
 
-	mock_db "github.com/sondev/todo-list/mock"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
-	"github.com/sondev/todo-list/utils"
+	mocks "github.com/huynhtruongson/simple-todo/mocks/lib"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+	"github.com/huynhtruongson/simple-todo/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestUserRepo_CreateUser(t *testing.T) {
 	ctx := context.Background()
-	db := &mock_db.MockTx{}
-	row := &mock_db.MockRow{}
+	db := mocks.NewTx(t)
+	row := mocks.NewRow(t)
 	mockUser := user_entity.User{
 		FullName: "fullname",
 		Username: "username",
@@ -32,8 +32,8 @@ func TestUserRepo_CreateUser(t *testing.T) {
 			name: "should call insert query exactly",
 			user: mockUser,
 			mock: func() {
-				db.On("QueryRow", utils.GenerateMockArguments(3, ctx, expectQuery)...).Once().Return(row)
-				row.On("Scan", mock.Anything).Once().Return(nil)
+				db.EXPECT().QueryRow(ctx, expectQuery, utils.GenerateMockArguments(3)...).Once().Return(row)
+				row.EXPECT().Scan(mock.Anything).Once().Return(nil)
 			},
 		},
 	}
@@ -53,8 +53,8 @@ func TestUserRepo_CreateUser(t *testing.T) {
 
 func TestUserRepo_GetUsersByUsername(t *testing.T) {
 	ctx := context.Background()
-	db := &mock_db.MockTx{}
-	rows := &mock_db.MockRows{}
+	db := mocks.NewTx(t)
+	rows := mocks.NewRows(t)
 	expectQuery := `SELECT user_id,fullname,username,password FROM users WHERE username = $1 AND deleted_at IS NULL`
 	tests := []struct {
 		name         string
@@ -67,11 +67,11 @@ func TestUserRepo_GetUsersByUsername(t *testing.T) {
 			name:     "should call get query exactly",
 			username: "username",
 			mock: func() {
-				db.On("Query", ctx, expectQuery, "username").Once().Return(rows, nil)
-				rows.On("Next").Once().Return(true)
-				rows.On("Scan", utils.GenerateMockArguments(4)...).Once().Return(nil)
-				rows.On("Next").Once().Return(false)
-				rows.On("Close").Once().Return()
+				db.EXPECT().Query(ctx, expectQuery, "username").Once().Return(rows, nil)
+				rows.EXPECT().Next().Once().Return(true)
+				rows.EXPECT().Scan(utils.GenerateMockArguments(4)...).Once().Return(nil)
+				rows.EXPECT().Next().Once().Return(false)
+				rows.EXPECT().Close().Once().Return()
 			},
 		},
 	}
@@ -90,8 +90,8 @@ func TestUserRepo_GetUsersByUsername(t *testing.T) {
 
 func TestUserRepo_GetUsersByUserIds(t *testing.T) {
 	ctx := context.Background()
-	db := &mock_db.MockTx{}
-	rows := &mock_db.MockRows{}
+	db := mocks.NewTx(t)
+	rows := mocks.NewRows(t)
 	expectQuery := `SELECT user_id,fullname,username,password FROM users WHERE user_id = ANY($1) AND deleted_at IS NULL`
 	tests := []struct {
 		name         string
@@ -104,11 +104,11 @@ func TestUserRepo_GetUsersByUserIds(t *testing.T) {
 			name: "should call get query exactly",
 			ids:  []int{1},
 			mock: func() {
-				db.On("Query", ctx, expectQuery, []int{1}).Once().Return(rows, nil)
-				rows.On("Next").Once().Return(true)
-				rows.On("Scan", utils.GenerateMockArguments(4)...).Once().Return(nil)
-				rows.On("Next").Once().Return(false)
-				rows.On("Close").Once().Return()
+				db.EXPECT().Query(ctx, expectQuery, []int{1}).Once().Return(rows, nil)
+				rows.EXPECT().Next().Once().Return(true)
+				rows.EXPECT().Scan(utils.GenerateMockArguments(4)...).Once().Return(nil)
+				rows.EXPECT().Next().Once().Return(false)
+				rows.EXPECT().Close().Once().Return()
 			},
 		},
 	}

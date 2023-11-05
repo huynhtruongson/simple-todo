@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/sondev/todo-list/common"
-	"github.com/sondev/todo-list/lib"
-	task_biz "github.com/sondev/todo-list/services/task/business"
-	task_repo "github.com/sondev/todo-list/services/task/repository"
+	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/lib"
+	task_biz "github.com/huynhtruongson/simple-todo/services/task/business"
+	task_repo "github.com/huynhtruongson/simple-todo/services/task/repository"
 
 	"github.com/gin-gonic/gin"
 )

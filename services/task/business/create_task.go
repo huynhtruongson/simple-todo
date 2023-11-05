@@ -4,10 +4,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/sondev/todo-list/common"
-	"github.com/sondev/todo-list/lib"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
+	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/lib"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 
 	"github.com/jackc/pgx/v5"
 )

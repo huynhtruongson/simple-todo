@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sondev/todo-list/lib"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
-	"github.com/sondev/todo-list/utils"
+	"github.com/huynhtruongson/simple-todo/lib"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+	"github.com/huynhtruongson/simple-todo/utils"
 )
 
 type UserRepo struct{}

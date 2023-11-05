@@ -4,12 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/sondev/todo-list/common"
-	mock_db "github.com/sondev/todo-list/mock"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
-	task_mock "github.com/sondev/todo-list/services/task/mock/repo"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
-	user_mock "github.com/sondev/todo-list/services/user/mock/repo"
+	"github.com/huynhtruongson/simple-todo/common"
+	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
+	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,10 +16,10 @@ import (
 
 func TestCreateTaskBiz_CreateTask(t *testing.T) {
 	ctx := context.Background()
-	userRepo := &user_mock.MockUserRepo{}
-	taskRepo := &task_mock.MockTaskRepo{}
-	db := &mock_db.MockDB{}
-	tx := &mock_db.MockTx{}
+	userRepo := mock_repo.NewUserRepo(t)
+	taskRepo := mock_repo.NewTaskRepo(t)
+	db := mock_db.NewDB(t)
+	tx := mock_db.NewTx(t)
 	tests := []struct {
 		name         string
 		task         task_entity.Task
@@ -36,14 +35,14 @@ func TestCreateTaskBiz_CreateTask(t *testing.T) {
 				Status: 1,
 			},
 			mock: func() {
-				userRepo.On("GetUsersByUserIds", ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
-				db.On("BeginTx", ctx, mock.Anything).Once().Return(tx, nil)
-				taskRepo.On("CreateTask", ctx, tx, task_entity.Task{
+				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
+				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
+				taskRepo.EXPECT().CreateTask(ctx, tx, task_entity.Task{
 					Title:  "title",
 					UserID: 1,
 					Status: 1,
 				}).Once().Return(1, nil)
-				tx.On("Commit", ctx).Once().Return(nil)
+				tx.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr:    nil,
 			expectTaskID: 1,
@@ -66,8 +65,8 @@ func TestCreateTaskBiz_CreateTask(t *testing.T) {
 
 func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 	ctx := context.Background()
-	userRepo := &user_mock.MockUserRepo{}
-	db := &mock_db.MockDB{}
+	userRepo := mock_repo.NewUserRepo(t)
+	db := mock_db.NewDB(t)
 	tests := []struct {
 		name      string
 		task      task_entity.Task
@@ -108,7 +107,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 				Status: 1,
 			},
 			mock: func() {
-				userRepo.On("GetUsersByUserIds", ctx, db, []int{1}).Once().Return([]user_entity.User{}, nil)
+				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{}, nil)
 			},
 			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorUserNotFound, "ValidateTask"),
 		},

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sondev/todo-list/common"
+	"github.com/huynhtruongson/simple-todo/common"
 )
 
 type Task struct {

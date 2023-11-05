@@ -4,9 +4,9 @@ import (
 	"context"
 	"math"
 
-	"github.com/sondev/todo-list/common"
-	"github.com/sondev/todo-list/lib"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
+	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/lib"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 )
 
 type TasksWithPaging struct {

@@ -4,21 +4,21 @@ import (
 	"context"
 	"testing"
 
-	mock_db "github.com/sondev/todo-list/mock"
-	task_entity "github.com/sondev/todo-list/services/task/entity"
-	task_mock "github.com/sondev/todo-list/services/task/mock/repo"
-	user_entity "github.com/sondev/todo-list/services/user/entity"
-	user_mock "github.com/sondev/todo-list/services/user/mock/repo"
+	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
+	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
+	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
+	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
 	ctx := context.Background()
-	userRepo := &user_mock.MockUserRepo{}
-	taskRepo := &task_mock.MockTaskRepo{}
-	db := &mock_db.MockDB{}
-	tx := &mock_db.MockTx{}
+	userRepo := mock_repo.NewUserRepo(t)
+	taskRepo := mock_repo.NewTaskRepo(t)
+	db := mock_db.NewDB(t)
+	tx := mock_db.NewTx(t)
 	tests := []struct {
 		name      string
 		task      task_entity.Task
@@ -34,16 +34,16 @@ func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
 				Status: 1,
 			},
 			mock: func() {
-				taskRepo.On("GetTasksByIds", ctx, db, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
-				userRepo.On("GetUsersByUserIds", ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
-				db.On("BeginTx", ctx, mock.Anything).Once().Return(tx, nil)
-				taskRepo.On("UpdateTask", ctx, tx, task_entity.Task{
+				taskRepo.EXPECT().GetTasksByIds(ctx, db, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
+				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
+				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
+				taskRepo.EXPECT().UpdateTask(ctx, tx, task_entity.Task{
 					TaskID: 1,
 					Title:  "title",
 					UserID: 1,
 					Status: 1,
 				}).Once().Return(nil)
-				tx.On("Commit", ctx).Once().Return(nil)
+				tx.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr: nil,
 		},

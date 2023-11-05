@@ -29,19 +29,6 @@ func NewAppError(rootErr error, code int, msg string, debugMsg string) *AppError
 	}
 }
 
-func NewCustomError(err error, code int, message string, debugMsg string) *AppError {
-	appErr, ok := err.(*AppError)
-	if ok {
-		return NewAppError(
-			err,
-			http.StatusInternalServerError,
-			message,
-			fmt.Sprintf(debugMsg+"->%s", appErr.DebugMessage),
-		)
-	}
-	return NewAppError(err, code, message, debugMsg)
-}
-
 func NewInternalError(err error, message string, debugMsg string) *AppError {
 	appErr, ok := err.(*AppError)
 	if ok {

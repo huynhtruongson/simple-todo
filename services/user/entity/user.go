@@ -1,6 +1,6 @@
 package user_entity
 
-import "github.com/sondev/todo-list/common"
+import "github.com/huynhtruongson/simple-todo/common"
 
 type User struct {
 	UserID   int    `json:"user_id"`

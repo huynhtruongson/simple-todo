@@ -37,3 +37,15 @@ func ExecTX(ctx context.Context, db TxStarter, txHandler func(ctx context.Contex
 
 	return err
 }
+
+type Tx interface {
+	pgx.Tx
+}
+
+type Row interface {
+	pgx.Row
+}
+
+type Rows interface {
+	pgx.Rows
+}
