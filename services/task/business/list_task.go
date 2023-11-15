@@ -26,9 +26,9 @@ func NewListTaskBiz(db lib.DB, taskRepo TaskRepo) *ListTaskBiz {
 	}
 }
 
-func (biz ListTaskBiz) ListTask(ctx context.Context, paging common.Paging) (TasksWithPaging, error) {
+func (biz ListTaskBiz) ListTask(ctx context.Context, paging common.Paging, filter common.Filter) (TasksWithPaging, error) {
 	tasksWithPaging := TasksWithPaging{}
-	totalTasks, err := biz.TaskRepo.CountTask(ctx, biz.DB)
+	totalTasks, err := biz.TaskRepo.CountTask(ctx, biz.DB, filter.UserID)
 	paging.Total = totalTasks
 	if err != nil {
 		return tasksWithPaging, common.NewInternalError(err, common.InternalErrorMessage, "ListTask.TaskRepo.CountTask")
@@ -45,7 +45,7 @@ func (biz ListTaskBiz) ListTask(ctx context.Context, paging common.Paging) (Task
 	}
 	offset := paging.Limit * (paging.Page - 1)
 
-	tasks, err := biz.TaskRepo.GetTasksWithFilter(ctx, biz.DB, paging.Limit, offset)
+	tasks, err := biz.TaskRepo.GetTasksWithFilter(ctx, biz.DB, filter.UserID, paging.Limit, offset)
 	if err != nil {
 		return tasksWithPaging, common.NewInternalError(err, common.InternalErrorMessage, "ListTask.TaskRepo.GetTasksWithFilter")
 	}

@@ -33,7 +33,8 @@ func (repo *UserRepo) CreateUser(ctx context.Context, db lib.QueryExecer, user u
 }
 
 func (repo *UserRepo) GetUsersByUsername(ctx context.Context, db lib.QueryExecer, username string) ([]user_entity.User, error) {
-	fields, _ := user_entity.User{}.FieldMap()
+	var user user_entity.User
+	fields, _ := user.FieldMap()
 	query := fmt.Sprintf(
 		`SELECT %s FROM %s WHERE username = $1 AND deleted_at IS NULL`,
 		strings.Join(fields, ","),
@@ -60,7 +61,8 @@ func (repo *UserRepo) GetUsersByUsername(ctx context.Context, db lib.QueryExecer
 }
 
 func (repo *UserRepo) GetUsersByUserIds(ctx context.Context, db lib.QueryExecer, ids []int) ([]user_entity.User, error) {
-	fields, _ := user_entity.User{}.FieldMap()
+	var user user_entity.User
+	fields, _ := user.FieldMap()
 	query := fmt.Sprintf(
 		`SELECT %s FROM %s WHERE user_id = ANY($1) AND deleted_at IS NULL`,
 		strings.Join(fields, ","),

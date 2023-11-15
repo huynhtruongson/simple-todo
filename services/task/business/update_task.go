@@ -25,7 +25,7 @@ func NewUpdateTaskBiz(db lib.DB, taskRepo TaskRepo, userRepo UserRepo) *CreateTa
 }
 
 func (biz CreateTaskBiz) UpdateTask(ctx context.Context, task task_entity.Task) error {
-	tasks, err := biz.TaskRepo.GetTasksByIds(ctx, biz.DB, []int{task.TaskID})
+	tasks, err := biz.TaskRepo.GetTasksByIds(ctx, biz.DB, task.UserID, []int{task.TaskID})
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "UpdateTask.TaskRepo.GetTasksByIds")
 	}

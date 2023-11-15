@@ -14,7 +14,7 @@ func (u User) TableName() string {
 	return "users"
 }
 
-func (u User) FieldMap() ([]string, []interface{}) {
+func (u *User) FieldMap() ([]string, []interface{}) {
 	return []string{
 			"user_id",
 			"fullname",

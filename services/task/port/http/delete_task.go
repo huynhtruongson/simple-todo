@@ -6,8 +6,10 @@ import (
 
 	"github.com/huynhtruongson/simple-todo/common"
 	"github.com/huynhtruongson/simple-todo/lib"
+	"github.com/huynhtruongson/simple-todo/middleware"
 	task_biz "github.com/huynhtruongson/simple-todo/services/task/business"
 	task_repo "github.com/huynhtruongson/simple-todo/services/task/repository"
+	"github.com/huynhtruongson/simple-todo/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,10 +22,16 @@ func DeleteTask(db lib.DB) func(*gin.Context) {
 		}
 
 		biz := task_biz.NewDeleteTaskBiz(db, task_repo.NewTaskRepo())
+		payload := ctx.MustGet(middleware.AuthorizationPayloadKey).(token.TokenPayload)
 
-		err = biz.DeleteTask(ctx, taskId)
+		err = biz.DeleteTask(ctx, payload.UserID, taskId)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, err)
+			code := http.StatusBadRequest
+			appErr, ok := err.(*common.AppError)
+			if ok {
+				code = appErr.Code
+			}
+			ctx.JSON(code, err)
 			return
 		}
 		ctx.JSON(http.StatusOK, common.NewSimpleSuccessResponse(true))

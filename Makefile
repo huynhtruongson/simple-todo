@@ -17,5 +17,7 @@ gen-mock:
 	mockery --dir lib --all --output mocks/lib --with-expecter
 	mockery --dir services/user --all --output mocks/user --with-expecter
 	mockery --dir services/task --all --output mocks/task --with-expecter
+	mockery --dir services/auth --all --output mocks/auth --with-expecter
+	mockery --dir token --all --output mocks/token --with-expecter
 unit-test:
 	go test -v -cover ./...

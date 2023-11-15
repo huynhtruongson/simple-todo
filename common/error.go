@@ -54,3 +54,16 @@ func NewInvalidRequestError(err error, message string, debugMsg string) *AppErro
 	}
 	return NewAppError(err, http.StatusBadRequest, message, debugMsg)
 }
+
+func NewUnAuthorizedRequestError(err error, message string, debugMsg string) *AppError {
+	appErr, ok := err.(*AppError)
+	if ok {
+		return NewAppError(
+			err,
+			http.StatusUnauthorized,
+			message,
+			fmt.Sprintf(debugMsg+"->%s", appErr.DebugMessage),
+		)
+	}
+	return NewAppError(err, http.StatusUnauthorized, message, debugMsg)
+}

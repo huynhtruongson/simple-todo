@@ -22,3 +22,18 @@ func TestGeneratePlaceHolders(t *testing.T) {
 		assert.Equal(t, expected, placeholderStr)
 	})
 }
+
+func TestRandomInt(t *testing.T) {
+	t.Run("should generate random int correctly", func(t *testing.T) {
+		randInt := RandomInt(0, 10)
+		assert.GreaterOrEqual(t, randInt, 0)
+		assert.LessOrEqual(t, randInt, 10)
+	})
+}
+
+func TestRandomString(t *testing.T) {
+	t.Run("should generate random string correctly", func(t *testing.T) {
+		randStr := RandomString(10)
+		assert.Equal(t, len(randStr), 10)
+	})
+}

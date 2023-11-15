@@ -49,17 +49,17 @@ func (t TaskRepo) UpdateTask(ctx context.Context, db lib.QueryExecer, task task_
 	return nil
 }
 
-func (t TaskRepo) GetTasksByIds(ctx context.Context, db lib.QueryExecer, ids []int) ([]task_entity.Task, error) {
+func (t TaskRepo) GetTasksByIds(ctx context.Context, db lib.QueryExecer, userID int, taskID []int) ([]task_entity.Task, error) {
 	task := &task_entity.Task{}
 	fields, _ := task.FieldMap()
 	query := fmt.Sprintf(
-		`SELECT %s FROM %s WHERE task_id = ANY($1) AND deleted_at IS NULL`,
+		`SELECT %s FROM %s WHERE task_id = ANY($1) AND user_id = $2 AND deleted_at IS NULL`,
 		strings.Join(fields, ","),
 		task_entity.Task{}.TableName(),
 	)
 
 	tasks := []task_entity.Task{}
-	rows, err := db.Query(ctx, query, ids)
+	rows, err := db.Query(ctx, query, taskID, userID)
 	if err != nil {
 		return tasks, err
 	}
@@ -77,43 +77,43 @@ func (t TaskRepo) GetTasksByIds(ctx context.Context, db lib.QueryExecer, ids []i
 	return tasks, nil
 }
 
-func (t TaskRepo) DeleteTask(ctx context.Context, db lib.QueryExecer, id int) error {
+func (t TaskRepo) DeleteTask(ctx context.Context, db lib.QueryExecer, taskID int) error {
 	query := fmt.Sprintf(
 		`UPDATE %s SET deleted_at = now() WHERE task_id = $1`,
 		task_entity.Task{}.TableName(),
 	)
 
-	if _, err := db.Exec(ctx, query, id); err != nil {
+	if _, err := db.Exec(ctx, query, taskID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (t TaskRepo) CountTask(ctx context.Context, db lib.QueryExecer) (int, error) {
+func (t TaskRepo) CountTask(ctx context.Context, db lib.QueryExecer, userID int) (int, error) {
 	query := fmt.Sprintf(
-		`SELECT count(task_id) FROM %s WHERE deleted_at IS NULL`,
+		`SELECT count(task_id) FROM %s WHERE user_id = $1 AND deleted_at IS NULL`,
 		task_entity.Task{}.TableName(),
 	)
 	var count int
-	if err := db.QueryRow(ctx, query).Scan(&count); err != nil {
+	if err := db.QueryRow(ctx, query, userID).Scan(&count); err != nil {
 		return count, err
 	}
 
 	return count, nil
 }
 
-func (t TaskRepo) GetTasksWithFilter(ctx context.Context, db lib.QueryExecer, limit, offset int) ([]task_entity.Task, error) {
+func (t TaskRepo) GetTasksWithFilter(ctx context.Context, db lib.QueryExecer, userID, limit, offset int) ([]task_entity.Task, error) {
 	task := &task_entity.Task{}
 	fields, _ := task.FieldMap()
 	query := fmt.Sprintf(
-		`SELECT %s FROM %s WHERE deleted_at IS NULL ORDER BY created_at LIMIT $1 OFFSET $2`,
+		`SELECT %s FROM %s WHERE user_id = $1 AND deleted_at IS NULL ORDER BY created_at LIMIT $2 OFFSET $3`,
 		strings.Join(fields, ","),
 		task_entity.Task{}.TableName(),
 	)
 
 	tasks := []task_entity.Task{}
-	rows, err := db.Query(ctx, query, limit, offset)
+	rows, err := db.Query(ctx, query, userID, limit, offset)
 	if err != nil {
 		return tasks, err
 	}

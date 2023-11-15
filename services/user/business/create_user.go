@@ -6,6 +6,7 @@ import (
 	"github.com/huynhtruongson/simple-todo/common"
 	"github.com/huynhtruongson/simple-todo/lib"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+	"github.com/huynhtruongson/simple-todo/utils"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -31,6 +32,11 @@ func (biz CreateUserBiz) CreateUser(ctx context.Context, user user_entity.User) 
 		return 0, err
 	}
 	var userID int
+	hashedPwd, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return userID, common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
+	}
+	user.Password = hashedPwd
 	if err := lib.ExecTX(ctx, biz.DB, func(ctx context.Context, tx pgx.Tx) error {
 		id, err := biz.UserRepo.CreateUser(ctx, tx, user)
 		userID = id

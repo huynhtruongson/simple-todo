@@ -34,7 +34,7 @@ func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
 				Status: 1,
 			},
 			mock: func() {
-				taskRepo.EXPECT().GetTasksByIds(ctx, db, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
+				taskRepo.EXPECT().GetTasksByIds(ctx, db, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
 				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
 				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
 				taskRepo.EXPECT().UpdateTask(ctx, tx, task_entity.Task{

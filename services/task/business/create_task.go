@@ -14,11 +14,11 @@ import (
 
 type TaskRepo interface {
 	CreateTask(ctx context.Context, db lib.QueryExecer, task task_entity.Task) (int, error)
-	GetTasksByIds(ctx context.Context, db lib.QueryExecer, ids []int) ([]task_entity.Task, error)
+	GetTasksByIds(ctx context.Context, db lib.QueryExecer, userID int, taskID []int) ([]task_entity.Task, error)
 	UpdateTask(ctx context.Context, db lib.QueryExecer, task task_entity.Task) error
-	DeleteTask(ctx context.Context, db lib.QueryExecer, id int) error
-	CountTask(ctx context.Context, db lib.QueryExecer) (int, error)
-	GetTasksWithFilter(ctx context.Context, db lib.QueryExecer, limit, offset int) ([]task_entity.Task, error)
+	DeleteTask(ctx context.Context, db lib.QueryExecer, taskID int) error
+	CountTask(ctx context.Context, db lib.QueryExecer, userID int) (int, error)
+	GetTasksWithFilter(ctx context.Context, db lib.QueryExecer, userID, limit, offset int) ([]task_entity.Task, error)
 }
 type UserRepo interface {
 	GetUsersByUserIds(ctx context.Context, db lib.QueryExecer, ids []int) ([]user_entity.User, error)

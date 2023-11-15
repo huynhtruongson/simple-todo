@@ -19,15 +19,17 @@ func TestDeleteTaskBiz_DeleteTask(t *testing.T) {
 	tx := mock_db.NewTx(t)
 	tests := []struct {
 		name      string
-		taskId    int
+		userID    int
+		taskID    int
 		mock      func()
 		expectErr error
 	}{
 		{
 			name:   "should Delete task successfully",
-			taskId: 1,
+			taskID: 1,
+			userID: 1,
 			mock: func() {
-				taskRepo.EXPECT().GetTasksByIds(ctx, db, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
+				taskRepo.EXPECT().GetTasksByIds(ctx, db, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
 				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
 				taskRepo.EXPECT().DeleteTask(ctx, tx, 1).Once().Return(nil)
 				tx.EXPECT().Commit(ctx).Once().Return(nil)
@@ -40,7 +42,7 @@ func TestDeleteTaskBiz_DeleteTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			biz := NewDeleteTaskBiz(db, taskRepo)
 			tt.mock()
-			err := biz.DeleteTask(ctx, tt.taskId)
+			err := biz.DeleteTask(ctx, tt.userID, tt.taskID)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return

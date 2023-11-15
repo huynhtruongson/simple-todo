@@ -22,8 +22,8 @@ func NewDeleteTaskBiz(db lib.DB, taskRepo TaskRepo) *CreateTaskBiz {
 	}
 }
 
-func (biz CreateTaskBiz) DeleteTask(ctx context.Context, id int) error {
-	tasks, err := biz.TaskRepo.GetTasksByIds(ctx, biz.DB, []int{id})
+func (biz CreateTaskBiz) DeleteTask(ctx context.Context, userID, taskID int) error {
+	tasks, err := biz.TaskRepo.GetTasksByIds(ctx, biz.DB, userID, []int{taskID})
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "DeleteTask.TaskRepo.GetTasksByIds")
 	}
@@ -31,7 +31,7 @@ func (biz CreateTaskBiz) DeleteTask(ctx context.Context, id int) error {
 		return common.NewInvalidRequestError(err, task_entity.ErrorTaskNotFound, "DeleteTask")
 	}
 	if err := lib.ExecTX(ctx, biz.DB, func(ctx context.Context, tx pgx.Tx) error {
-		err := biz.TaskRepo.DeleteTask(ctx, tx, id)
+		err := biz.TaskRepo.DeleteTask(ctx, tx, taskID)
 		if err != nil {
 			return common.NewInternalError(err, common.InternalErrorMessage, "DeleteTask.TaskRepo.DeleteTask")
 		}

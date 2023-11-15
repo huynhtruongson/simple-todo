@@ -2,10 +2,13 @@ package utils
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/stretchr/testify/mock"
 )
+
+const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
 func GeneratePlaceHolders(n int) string {
 	s := ``
@@ -38,4 +41,17 @@ func GenerateMockArguments(n int, args ...interface{}) []interface{} {
 		args = append(args, mock.Anything)
 	}
 	return args
+}
+
+func RandomInt(min, max int) int {
+	return min + rand.Intn(max-min+1)
+}
+
+func RandomString(n int) string {
+	var sb strings.Builder
+	for i := 0; i < n; i++ {
+		c := alphabet[rand.Intn(len(alphabet))]
+		sb.WriteByte(c)
+	}
+	return sb.String()
 }

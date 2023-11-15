@@ -13,3 +13,7 @@ type Paging struct {
 	Limit int `json:"limit"`
 	Total int `json:"total"`
 }
+
+type Filter struct {
+	UserID int `json:"-"`
+}

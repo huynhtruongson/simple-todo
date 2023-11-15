@@ -24,23 +24,23 @@ func (_m *TaskRepo) EXPECT() *TaskRepo_Expecter {
 	return &TaskRepo_Expecter{mock: &_m.Mock}
 }
 
-// CountTask provides a mock function with given fields: ctx, db
-func (_m *TaskRepo) CountTask(ctx context.Context, db lib.QueryExecer) (int, error) {
-	ret := _m.Called(ctx, db)
+// CountTask provides a mock function with given fields: ctx, db, userID
+func (_m *TaskRepo) CountTask(ctx context.Context, db lib.QueryExecer, userID int) (int, error) {
+	ret := _m.Called(ctx, db, userID)
 
 	var r0 int
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer) (int, error)); ok {
-		return rf(ctx, db)
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int) (int, error)); ok {
+		return rf(ctx, db, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer) int); ok {
-		r0 = rf(ctx, db)
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int) int); ok {
+		r0 = rf(ctx, db, userID)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer) error); ok {
-		r1 = rf(ctx, db)
+	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer, int) error); ok {
+		r1 = rf(ctx, db, userID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,13 +56,14 @@ type TaskRepo_CountTask_Call struct {
 // CountTask is a helper method to define mock.On call
 //   - ctx context.Context
 //   - db lib.QueryExecer
-func (_e *TaskRepo_Expecter) CountTask(ctx interface{}, db interface{}) *TaskRepo_CountTask_Call {
-	return &TaskRepo_CountTask_Call{Call: _e.mock.On("CountTask", ctx, db)}
+//   - userID int
+func (_e *TaskRepo_Expecter) CountTask(ctx interface{}, db interface{}, userID interface{}) *TaskRepo_CountTask_Call {
+	return &TaskRepo_CountTask_Call{Call: _e.mock.On("CountTask", ctx, db, userID)}
 }
 
-func (_c *TaskRepo_CountTask_Call) Run(run func(ctx context.Context, db lib.QueryExecer)) *TaskRepo_CountTask_Call {
+func (_c *TaskRepo_CountTask_Call) Run(run func(ctx context.Context, db lib.QueryExecer, userID int)) *TaskRepo_CountTask_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(lib.QueryExecer))
+		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].(int))
 	})
 	return _c
 }
@@ -72,7 +73,7 @@ func (_c *TaskRepo_CountTask_Call) Return(_a0 int, _a1 error) *TaskRepo_CountTas
 	return _c
 }
 
-func (_c *TaskRepo_CountTask_Call) RunAndReturn(run func(context.Context, lib.QueryExecer) (int, error)) *TaskRepo_CountTask_Call {
+func (_c *TaskRepo_CountTask_Call) RunAndReturn(run func(context.Context, lib.QueryExecer, int) (int, error)) *TaskRepo_CountTask_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -131,13 +132,13 @@ func (_c *TaskRepo_CreateTask_Call) RunAndReturn(run func(context.Context, lib.Q
 	return _c
 }
 
-// DeleteTask provides a mock function with given fields: ctx, db, id
-func (_m *TaskRepo) DeleteTask(ctx context.Context, db lib.QueryExecer, id int) error {
-	ret := _m.Called(ctx, db, id)
+// DeleteTask provides a mock function with given fields: ctx, db, taskID
+func (_m *TaskRepo) DeleteTask(ctx context.Context, db lib.QueryExecer, taskID int) error {
+	ret := _m.Called(ctx, db, taskID)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int) error); ok {
-		r0 = rf(ctx, db, id)
+		r0 = rf(ctx, db, taskID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -153,12 +154,12 @@ type TaskRepo_DeleteTask_Call struct {
 // DeleteTask is a helper method to define mock.On call
 //   - ctx context.Context
 //   - db lib.QueryExecer
-//   - id int
-func (_e *TaskRepo_Expecter) DeleteTask(ctx interface{}, db interface{}, id interface{}) *TaskRepo_DeleteTask_Call {
-	return &TaskRepo_DeleteTask_Call{Call: _e.mock.On("DeleteTask", ctx, db, id)}
+//   - taskID int
+func (_e *TaskRepo_Expecter) DeleteTask(ctx interface{}, db interface{}, taskID interface{}) *TaskRepo_DeleteTask_Call {
+	return &TaskRepo_DeleteTask_Call{Call: _e.mock.On("DeleteTask", ctx, db, taskID)}
 }
 
-func (_c *TaskRepo_DeleteTask_Call) Run(run func(ctx context.Context, db lib.QueryExecer, id int)) *TaskRepo_DeleteTask_Call {
+func (_c *TaskRepo_DeleteTask_Call) Run(run func(ctx context.Context, db lib.QueryExecer, taskID int)) *TaskRepo_DeleteTask_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].(int))
 	})
@@ -175,25 +176,25 @@ func (_c *TaskRepo_DeleteTask_Call) RunAndReturn(run func(context.Context, lib.Q
 	return _c
 }
 
-// GetTasksByIds provides a mock function with given fields: ctx, db, ids
-func (_m *TaskRepo) GetTasksByIds(ctx context.Context, db lib.QueryExecer, ids []int) ([]task_entity.Task, error) {
-	ret := _m.Called(ctx, db, ids)
+// GetTasksByIds provides a mock function with given fields: ctx, db, userID, taskID
+func (_m *TaskRepo) GetTasksByIds(ctx context.Context, db lib.QueryExecer, userID int, taskID []int) ([]task_entity.Task, error) {
+	ret := _m.Called(ctx, db, userID, taskID)
 
 	var r0 []task_entity.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, []int) ([]task_entity.Task, error)); ok {
-		return rf(ctx, db, ids)
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int, []int) ([]task_entity.Task, error)); ok {
+		return rf(ctx, db, userID, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, []int) []task_entity.Task); ok {
-		r0 = rf(ctx, db, ids)
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int, []int) []task_entity.Task); ok {
+		r0 = rf(ctx, db, userID, taskID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]task_entity.Task)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer, []int) error); ok {
-		r1 = rf(ctx, db, ids)
+	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer, int, []int) error); ok {
+		r1 = rf(ctx, db, userID, taskID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -209,14 +210,15 @@ type TaskRepo_GetTasksByIds_Call struct {
 // GetTasksByIds is a helper method to define mock.On call
 //   - ctx context.Context
 //   - db lib.QueryExecer
-//   - ids []int
-func (_e *TaskRepo_Expecter) GetTasksByIds(ctx interface{}, db interface{}, ids interface{}) *TaskRepo_GetTasksByIds_Call {
-	return &TaskRepo_GetTasksByIds_Call{Call: _e.mock.On("GetTasksByIds", ctx, db, ids)}
+//   - userID int
+//   - taskID []int
+func (_e *TaskRepo_Expecter) GetTasksByIds(ctx interface{}, db interface{}, userID interface{}, taskID interface{}) *TaskRepo_GetTasksByIds_Call {
+	return &TaskRepo_GetTasksByIds_Call{Call: _e.mock.On("GetTasksByIds", ctx, db, userID, taskID)}
 }
 
-func (_c *TaskRepo_GetTasksByIds_Call) Run(run func(ctx context.Context, db lib.QueryExecer, ids []int)) *TaskRepo_GetTasksByIds_Call {
+func (_c *TaskRepo_GetTasksByIds_Call) Run(run func(ctx context.Context, db lib.QueryExecer, userID int, taskID []int)) *TaskRepo_GetTasksByIds_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].([]int))
+		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].(int), args[3].([]int))
 	})
 	return _c
 }
@@ -226,30 +228,30 @@ func (_c *TaskRepo_GetTasksByIds_Call) Return(_a0 []task_entity.Task, _a1 error)
 	return _c
 }
 
-func (_c *TaskRepo_GetTasksByIds_Call) RunAndReturn(run func(context.Context, lib.QueryExecer, []int) ([]task_entity.Task, error)) *TaskRepo_GetTasksByIds_Call {
+func (_c *TaskRepo_GetTasksByIds_Call) RunAndReturn(run func(context.Context, lib.QueryExecer, int, []int) ([]task_entity.Task, error)) *TaskRepo_GetTasksByIds_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTasksWithFilter provides a mock function with given fields: ctx, db, limit, offset
-func (_m *TaskRepo) GetTasksWithFilter(ctx context.Context, db lib.QueryExecer, limit int, offset int) ([]task_entity.Task, error) {
-	ret := _m.Called(ctx, db, limit, offset)
+// GetTasksWithFilter provides a mock function with given fields: ctx, db, userID, limit, offset
+func (_m *TaskRepo) GetTasksWithFilter(ctx context.Context, db lib.QueryExecer, userID int, limit int, offset int) ([]task_entity.Task, error) {
+	ret := _m.Called(ctx, db, userID, limit, offset)
 
 	var r0 []task_entity.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int, int) ([]task_entity.Task, error)); ok {
-		return rf(ctx, db, limit, offset)
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int, int, int) ([]task_entity.Task, error)); ok {
+		return rf(ctx, db, userID, limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int, int) []task_entity.Task); ok {
-		r0 = rf(ctx, db, limit, offset)
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, int, int, int) []task_entity.Task); ok {
+		r0 = rf(ctx, db, userID, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]task_entity.Task)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer, int, int) error); ok {
-		r1 = rf(ctx, db, limit, offset)
+	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer, int, int, int) error); ok {
+		r1 = rf(ctx, db, userID, limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -265,15 +267,16 @@ type TaskRepo_GetTasksWithFilter_Call struct {
 // GetTasksWithFilter is a helper method to define mock.On call
 //   - ctx context.Context
 //   - db lib.QueryExecer
+//   - userID int
 //   - limit int
 //   - offset int
-func (_e *TaskRepo_Expecter) GetTasksWithFilter(ctx interface{}, db interface{}, limit interface{}, offset interface{}) *TaskRepo_GetTasksWithFilter_Call {
-	return &TaskRepo_GetTasksWithFilter_Call{Call: _e.mock.On("GetTasksWithFilter", ctx, db, limit, offset)}
+func (_e *TaskRepo_Expecter) GetTasksWithFilter(ctx interface{}, db interface{}, userID interface{}, limit interface{}, offset interface{}) *TaskRepo_GetTasksWithFilter_Call {
+	return &TaskRepo_GetTasksWithFilter_Call{Call: _e.mock.On("GetTasksWithFilter", ctx, db, userID, limit, offset)}
 }
 
-func (_c *TaskRepo_GetTasksWithFilter_Call) Run(run func(ctx context.Context, db lib.QueryExecer, limit int, offset int)) *TaskRepo_GetTasksWithFilter_Call {
+func (_c *TaskRepo_GetTasksWithFilter_Call) Run(run func(ctx context.Context, db lib.QueryExecer, userID int, limit int, offset int)) *TaskRepo_GetTasksWithFilter_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].(int), args[3].(int), args[4].(int))
 	})
 	return _c
 }
@@ -283,7 +286,7 @@ func (_c *TaskRepo_GetTasksWithFilter_Call) Return(_a0 []task_entity.Task, _a1 e
 	return _c
 }
 
-func (_c *TaskRepo_GetTasksWithFilter_Call) RunAndReturn(run func(context.Context, lib.QueryExecer, int, int) ([]task_entity.Task, error)) *TaskRepo_GetTasksWithFilter_Call {
+func (_c *TaskRepo_GetTasksWithFilter_Call) RunAndReturn(run func(context.Context, lib.QueryExecer, int, int, int) ([]task_entity.Task, error)) *TaskRepo_GetTasksWithFilter_Call {
 	_c.Call.Return(run)
 	return _c
 }

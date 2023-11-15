@@ -94,19 +94,21 @@ func TestTaskRepo_GetTasksByIds(t *testing.T) {
 	ctx := context.Background()
 	db := mocks.NewDB(t)
 	rows := mocks.NewRows(t)
-	expectQuery := `SELECT task_id,user_id,title,status,description FROM tasks WHERE task_id = ANY($1) AND deleted_at IS NULL`
+	expectQuery := `SELECT task_id,user_id,title,status,description FROM tasks WHERE task_id = ANY($1) AND user_id = $2 AND deleted_at IS NULL`
 	tests := []struct {
 		name         string
-		ids          []int
+		userID       int
+		taskIDs      []int
 		mock         func()
 		expectErr    error
 		expectUserID int
 	}{
 		{
-			name: "should call get query exactly",
-			ids:  []int{1},
+			name:    "should call get query exactly",
+			userID:  1,
+			taskIDs: []int{1},
 			mock: func() {
-				db.EXPECT().Query(ctx, expectQuery, []int{1}).Once().Return(rows, nil)
+				db.EXPECT().Query(ctx, expectQuery, []int{1}, 1).Once().Return(rows, nil)
 				rows.EXPECT().Next().Once().Return(true)
 				rows.EXPECT().Scan(utils.GenerateMockArguments(5)...).Once().Return(nil)
 				rows.EXPECT().Next().Once().Return(false)
@@ -118,7 +120,7 @@ func TestTaskRepo_GetTasksByIds(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := &TaskRepo{}
 			tt.mock()
-			_, err := repo.GetTasksByIds(ctx, db, tt.ids)
+			_, err := repo.GetTasksByIds(ctx, db, tt.userID, tt.taskIDs)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return
@@ -163,7 +165,7 @@ func TestTaskRepo_CountTask(t *testing.T) {
 	ctx := context.Background()
 	db := mocks.NewDB(t)
 	row := mocks.NewRows(t)
-	expectQuery := `SELECT count(task_id) FROM tasks WHERE deleted_at IS NULL`
+	expectQuery := `SELECT count(task_id) FROM tasks WHERE user_id = $1 AND deleted_at IS NULL`
 	tests := []struct {
 		name         string
 		id           int
@@ -175,7 +177,7 @@ func TestTaskRepo_CountTask(t *testing.T) {
 			name: "should call count query exactly",
 			id:   1,
 			mock: func() {
-				db.EXPECT().QueryRow(ctx, expectQuery).Once().Return(row, nil)
+				db.EXPECT().QueryRow(ctx, expectQuery, 1).Once().Return(row, nil)
 				row.EXPECT().Scan(mock.Anything).Once().Return(nil)
 			},
 		},
@@ -184,7 +186,7 @@ func TestTaskRepo_CountTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := &TaskRepo{}
 			tt.mock()
-			_, err := repo.CountTask(ctx, db)
+			_, err := repo.CountTask(ctx, db, 1)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return
@@ -197,7 +199,7 @@ func TestTaskRepo_GetTasksWithFilter(t *testing.T) {
 	ctx := context.Background()
 	db := mocks.NewDB(t)
 	rows := mocks.NewRows(t)
-	expectQuery := `SELECT task_id,user_id,title,status,description FROM tasks WHERE deleted_at IS NULL ORDER BY created_at LIMIT $1 OFFSET $2`
+	expectQuery := `SELECT task_id,user_id,title,status,description FROM tasks WHERE user_id = $1 AND deleted_at IS NULL ORDER BY created_at LIMIT $2 OFFSET $3`
 	tests := []struct {
 		name         string
 		id           int
@@ -209,7 +211,7 @@ func TestTaskRepo_GetTasksWithFilter(t *testing.T) {
 			name: "should call count query exactly",
 			id:   1,
 			mock: func() {
-				db.EXPECT().Query(ctx, expectQuery, 10, 0).Once().Return(rows, nil)
+				db.EXPECT().Query(ctx, expectQuery, 1, 10, 0).Once().Return(rows, nil)
 				rows.EXPECT().Next().Once().Return(true)
 				rows.EXPECT().Scan(utils.GenerateMockArguments(5)...).Once().Return(nil)
 				rows.EXPECT().Next().Once().Return(false)
@@ -221,7 +223,7 @@ func TestTaskRepo_GetTasksWithFilter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := &TaskRepo{}
 			tt.mock()
-			_, err := repo.GetTasksWithFilter(ctx, db, 10, 0)
+			_, err := repo.GetTasksWithFilter(ctx, db, 1, 10, 0)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return

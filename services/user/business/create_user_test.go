@@ -34,14 +34,9 @@ func TestCreateUserBiz_CreateUser(t *testing.T) {
 				Password: "123123",
 			},
 			mock: func() {
-				// userRepo.On("GetUsersByUsername", ctx, db, "username").Once().Return([]user_entity.User{}, nil)
 				userRepo.EXPECT().GetUsersByUsername(ctx, db, "username").Once().Return([]user_entity.User{}, nil)
 				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
-				userRepo.EXPECT().CreateUser(ctx, tx, user_entity.User{
-					FullName: "fullname",
-					Username: "username",
-					Password: "123123",
-				}).Once().Return(1, nil)
+				userRepo.EXPECT().CreateUser(ctx, tx, mock.Anything).Once().Return(1, nil)
 				tx.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr:    nil,
