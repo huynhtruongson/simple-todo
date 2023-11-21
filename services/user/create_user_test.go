@@ -1,4 +1,4 @@
-package user_biz
+package user_service
 
 import (
 	"context"
@@ -13,16 +13,33 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCreateUserBiz_CreateUser(t *testing.T) {
-	ctx := context.Background()
+type MockServiceProp struct {
+	DB       *mock_db.DB
+	TX       *mock_db.Tx
+	UserRepo *mock_repo.UserRepo
+}
+
+func NewMockUserService(t *testing.T) (*UserService, *MockServiceProp) {
 	userRepo := mock_repo.NewUserRepo(t)
 	db := mock_db.NewDB(t)
 	tx := mock_db.NewTx(t)
+	return &UserService{
+			DB:       db,
+			UserRepo: userRepo,
+		}, &MockServiceProp{
+			DB:       db,
+			TX:       tx,
+			UserRepo: userRepo,
+		}
+}
+func TestCreateUserBiz_CreateUser(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
 
 	tests := []struct {
 		name         string
 		user         user_entity.User
-		mock         func()
+		mock         func(prop *MockServiceProp)
 		expectErr    error
 		expectUserID int
 	}{
@@ -33,11 +50,11 @@ func TestCreateUserBiz_CreateUser(t *testing.T) {
 				Username: "username",
 				Password: "123123",
 			},
-			mock: func() {
-				userRepo.EXPECT().GetUsersByUsername(ctx, db, "username").Once().Return([]user_entity.User{}, nil)
-				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
-				userRepo.EXPECT().CreateUser(ctx, tx, mock.Anything).Once().Return(1, nil)
-				tx.EXPECT().Commit(ctx).Once().Return(nil)
+			mock: func(prop *MockServiceProp) {
+				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{}, nil)
+				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
+				prop.UserRepo.EXPECT().CreateUser(ctx, prop.TX, mock.Anything).Once().Return(1, nil)
+				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr:    nil,
 			expectUserID: 1,
@@ -46,9 +63,9 @@ func TestCreateUserBiz_CreateUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			biz := NewCreateUserBiz(db, userRepo)
-			tt.mock()
-			userID, err := biz.CreateUser(ctx, tt.user)
+			sv, prop := NewMockUserService(t)
+			tt.mock(prop)
+			userID, err := sv.CreateUser(ctx, tt.user)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return
@@ -59,13 +76,12 @@ func TestCreateUserBiz_CreateUser(t *testing.T) {
 }
 
 func TestCreateUserBiz_ValidateUser(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
-	userRepo := mock_repo.NewUserRepo(t)
-	db := mock_db.NewDB(t)
 	tests := []struct {
 		name      string
 		user      user_entity.User
-		mock      func()
+		mock      func(prop *MockServiceProp)
 		expectErr *common.AppError
 	}{
 		{
@@ -73,7 +89,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 			user: user_entity.User{
 				FullName: "",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorFullnameIsEmpty, "ValidateUser"),
 		},
 		{
@@ -82,7 +98,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				FullName: "fullname",
 				Username: "",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorUsernameIsEmpty, "ValidateUser"),
 		},
 		{
@@ -91,7 +107,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				FullName: "fullname",
 				Username: "user",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorInvalidUsernameLength, "ValidateUser"),
 		},
 		{
@@ -101,7 +117,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Username: "username",
 				Password: "",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorPasswordIsEmpty, "ValidateUser"),
 		},
 		{
@@ -111,7 +127,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Username: "username",
 				Password: "123",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorInvalidPasswordLength, "ValidateUser"),
 		},
 		{
@@ -121,8 +137,8 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Username: "username",
 				Password: "123123",
 			},
-			mock: func() {
-				userRepo.EXPECT().GetUsersByUsername(ctx, db, "username").Once().Return([]user_entity.User{{
+			mock: func(prop *MockServiceProp) {
+				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{
 					FullName: "fullname",
 					Username: "username",
 					Password: "123123",
@@ -134,12 +150,9 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			biz := CreateUserBiz{
-				DB:       db,
-				UserRepo: userRepo,
-			}
-			tt.mock()
-			err := biz.ValidateUser(ctx, tt.user)
+			sv, prop := NewMockUserService(t)
+			tt.mock(prop)
+			err := sv.ValidateUser(ctx, tt.user)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr.Code, err.(*common.AppError).Code)
 				assert.Equal(t, tt.expectErr.Message, err.(*common.AppError).Message)

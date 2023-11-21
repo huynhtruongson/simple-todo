@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	DBAddress     string        `mapstructure:"DB_ADDRESS"`
-	ServerPort    string        `mapstructure:"SERVER_PORT"`
-	TokenKey      string        `mapstructure:"TOKEN_KEY"`
-	TokenDuration time.Duration `mapstructure:"TOKEN_DURATION"`
+	DBAddress      string        `mapstructure:"DB_ADDRESS"`
+	ApiServerPort  string        `mapstructure:"API_SERVER_PORT"`
+	GRPCServerPort string        `mapstructure:"GRPC_SERVER_PORT"`
+	TokenKey       string        `mapstructure:"TOKEN_KEY"`
+	TokenDuration  time.Duration `mapstructure:"TOKEN_DURATION"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

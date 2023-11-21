@@ -19,5 +19,15 @@ gen-mock:
 	mockery --dir services/task --all --output mocks/task --with-expecter
 	mockery --dir services/auth --all --output mocks/auth --with-expecter
 	mockery --dir token --all --output mocks/token --with-expecter
+
+gen-proto:
+	rm -f pb/*.proto
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+    --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+    proto/*.proto
+
+evans:
+	evans --host localhost --port 3001 -r repl
+
 unit-test:
 	go test -v -cover ./...

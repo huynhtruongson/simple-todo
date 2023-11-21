@@ -1,8 +1,12 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AppError struct {
@@ -17,15 +21,16 @@ func (e AppError) Error() string {
 }
 
 func NewAppError(rootErr error, code int, msg string, debugMsg string) *AppError {
-	errMsg := ""
+	err := errors.New("")
 	if rootErr != nil {
-		errMsg = rootErr.Error()
+		err = rootErr
+		// errMsg = rootErr.Error()
 	}
 	return &AppError{
 		Code:         code,
 		Message:      msg,
-		RootErr:      rootErr,
-		DebugMessage: fmt.Sprintf(debugMsg+"->%s", errMsg),
+		RootErr:      err,
+		DebugMessage: fmt.Sprintf(debugMsg+"->%s", err.Error()),
 	}
 }
 
@@ -66,4 +71,21 @@ func NewUnAuthorizedRequestError(err error, message string, debugMsg string) *Ap
 		)
 	}
 	return NewAppError(err, http.StatusUnauthorized, message, debugMsg)
+}
+
+func MapAppErrorToGRPCError(err error, message string) error {
+	code := codes.Internal
+	msg := ""
+	appErr, ok := err.(*AppError)
+	if ok {
+		switch appErr.Code {
+		// define more
+		case http.StatusBadRequest:
+			code = codes.InvalidArgument
+		case http.StatusUnauthorized:
+			code = codes.PermissionDenied
+		}
+		msg = appErr.Message
+	}
+	return status.Errorf(code, "%s: %s", message, msg)
 }

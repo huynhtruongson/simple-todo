@@ -1,21 +1,18 @@
-package task_biz
+package task_service
 
 import (
 	"context"
 	"testing"
 
 	"github.com/huynhtruongson/simple-todo/common"
-	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
-	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListTaskBiz_ListTask(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
-	taskRepo := mock_repo.NewTaskRepo(t)
-	db := mock_db.NewDB(t)
 	mockTask := task_entity.Task{
 		TaskID: 1,
 		UserID: 1,
@@ -24,10 +21,10 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 	tests := []struct {
 		name      string
 		taskId    int
-		mock      func()
+		mock      func(prop *MockServiceProp)
 		paging    common.Paging
 		filter    common.Filter
-		expectRes TasksWithPaging
+		expectRes task_entity.TasksWithPaging
 		expectErr error
 	}{
 		{
@@ -40,7 +37,7 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 			filter: common.Filter{
 				UserID: 1,
 			},
-			expectRes: TasksWithPaging{
+			expectRes: task_entity.TasksWithPaging{
 				Tasks: []task_entity.Task{mockTask},
 				Paging: common.Paging{
 					Page:  2,
@@ -48,9 +45,9 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 					Total: 11,
 				},
 			},
-			mock: func() {
-				taskRepo.EXPECT().CountTask(ctx, db, 1).Once().Return(11, nil)
-				taskRepo.EXPECT().GetTasksWithFilter(ctx, db, 1, 10, 10).Once().Return([]task_entity.Task{mockTask}, nil)
+			mock: func(prop *MockServiceProp) {
+				prop.TaskRepo.EXPECT().CountTask(ctx, prop.DB, 1).Once().Return(11, nil)
+				prop.TaskRepo.EXPECT().GetTasksWithFilter(ctx, prop.DB, 1, 10, 10).Once().Return([]task_entity.Task{mockTask}, nil)
 			},
 			expectErr: nil,
 		},
@@ -64,7 +61,7 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 			filter: common.Filter{
 				UserID: 1,
 			},
-			expectRes: TasksWithPaging{
+			expectRes: task_entity.TasksWithPaging{
 				Tasks: []task_entity.Task{mockTask},
 				Paging: common.Paging{
 					Page:  1,
@@ -72,9 +69,9 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 					Total: 1,
 				},
 			},
-			mock: func() {
-				taskRepo.EXPECT().CountTask(ctx, db, 1).Once().Return(1, nil)
-				taskRepo.EXPECT().GetTasksWithFilter(ctx, db, 1, 10, 0).Once().Return([]task_entity.Task{mockTask}, nil)
+			mock: func(prop *MockServiceProp) {
+				prop.TaskRepo.EXPECT().CountTask(ctx, prop.DB, 1).Once().Return(1, nil)
+				prop.TaskRepo.EXPECT().GetTasksWithFilter(ctx, prop.DB, 1, 10, 0).Once().Return([]task_entity.Task{mockTask}, nil)
 			},
 			expectErr: nil,
 		},
@@ -82,9 +79,9 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			biz := NewListTaskBiz(db, taskRepo)
-			tt.mock()
-			res, err := biz.ListTask(ctx, tt.paging, tt.filter)
+			sv, prop := NewMockTaskService(t)
+			tt.mock(prop)
+			res, err := sv.ListTask(ctx, tt.paging, tt.filter)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return

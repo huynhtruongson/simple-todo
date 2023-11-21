@@ -1,4 +1,4 @@
-package user_biz
+package user_service
 
 import (
 	"context"
@@ -11,24 +11,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type UserRepo interface {
-	CreateUser(ctx context.Context, db lib.QueryExecer, user user_entity.User) (int, error)
-	GetUsersByUsername(ctx context.Context, db lib.QueryExecer, username string) ([]user_entity.User, error)
-}
-type CreateUserBiz struct {
-	DB lib.DB
-	UserRepo
-}
-
-func NewCreateUserBiz(db lib.DB, userRepo UserRepo) *CreateUserBiz {
-	return &CreateUserBiz{
-		DB:       db,
-		UserRepo: userRepo,
-	}
-}
-
-func (biz CreateUserBiz) CreateUser(ctx context.Context, user user_entity.User) (int, error) {
-	if err := biz.ValidateUser(ctx, user); err != nil {
+func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (int, error) {
+	if err := s.ValidateUser(ctx, user); err != nil {
 		return 0, err
 	}
 	var userID int
@@ -37,8 +21,8 @@ func (biz CreateUserBiz) CreateUser(ctx context.Context, user user_entity.User) 
 		return userID, common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
 	}
 	user.Password = hashedPwd
-	if err := lib.ExecTX(ctx, biz.DB, func(ctx context.Context, tx pgx.Tx) error {
-		id, err := biz.UserRepo.CreateUser(ctx, tx, user)
+	if err := lib.ExecTX(ctx, s.DB, func(ctx context.Context, tx pgx.Tx) error {
+		id, err := s.UserRepo.CreateUser(ctx, tx, user)
 		userID = id
 		if err != nil {
 			return common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
@@ -51,7 +35,7 @@ func (biz CreateUserBiz) CreateUser(ctx context.Context, user user_entity.User) 
 	return userID, nil
 }
 
-func (biz CreateUserBiz) ValidateUser(ctx context.Context, user user_entity.User) error {
+func (s *UserService) ValidateUser(ctx context.Context, user user_entity.User) error {
 	switch {
 	case user.FullName == "":
 		return common.NewInvalidRequestError(nil, user_entity.ErrorFullnameIsEmpty, "ValidateUser")
@@ -64,7 +48,7 @@ func (biz CreateUserBiz) ValidateUser(ctx context.Context, user user_entity.User
 	case len(user.Password) < 6:
 		return common.NewInvalidRequestError(nil, user_entity.ErrorInvalidPasswordLength, "ValidateUser")
 	}
-	users, err := biz.UserRepo.GetUsersByUsername(ctx, biz.DB, user.Username)
+	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, user.Username)
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "ValidateUser.UserRepo.GetUsersByUsername")
 	}

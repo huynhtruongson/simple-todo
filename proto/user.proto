@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/huynhtruongson/simple-todo/pb";
+
+message CreateUserRequest {
+    string fullname = 1;
+    string username = 2;
+    string password = 3;
+}
+
+message CreateUserResponse {
+    int64 data = 1; 
+}
+
+service UserService {
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+}
