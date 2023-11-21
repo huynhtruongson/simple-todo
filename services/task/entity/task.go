@@ -94,3 +94,8 @@ func (status *TaskStatus) Value() (driver.Value, error) {
 
 	return []byte(statusStr), nil
 }
+
+type TasksWithPaging struct {
+	Tasks  []Task        `json:"tasks"`
+	Paging common.Paging `json:"pagination"`
+}

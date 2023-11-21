@@ -3,9 +3,9 @@
 package mocks
 
 import (
-	context "context"
-
 	auth_entity "github.com/huynhtruongson/simple-todo/services/auth/entity"
+
+	context "context"
 
 	lib "github.com/huynhtruongson/simple-todo/lib"
 

@@ -1,4 +1,4 @@
-package task_biz
+package task_service
 
 import (
 	"context"
@@ -14,16 +14,36 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCreateTaskBiz_CreateTask(t *testing.T) {
-	ctx := context.Background()
+type MockServiceProp struct {
+	DB       *mock_db.DB
+	TX       *mock_db.Tx
+	TaskRepo *mock_repo.TaskRepo
+	UserRepo *mock_repo.UserRepo
+}
+
+func NewMockTaskService(t *testing.T) (*TaskService, *MockServiceProp) {
 	userRepo := mock_repo.NewUserRepo(t)
 	taskRepo := mock_repo.NewTaskRepo(t)
 	db := mock_db.NewDB(t)
 	tx := mock_db.NewTx(t)
+	return &TaskService{
+			DB:       db,
+			TaskRepo: taskRepo,
+			UserRepo: userRepo,
+		}, &MockServiceProp{
+			DB:       db,
+			TX:       tx,
+			TaskRepo: taskRepo,
+			UserRepo: userRepo,
+		}
+}
+func TestCreateTaskBiz_CreateTask(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
 	tests := []struct {
 		name         string
 		task         task_entity.Task
-		mock         func()
+		mock         func(prop *MockServiceProp)
 		expectErr    error
 		expectTaskID int
 	}{
@@ -34,15 +54,15 @@ func TestCreateTaskBiz_CreateTask(t *testing.T) {
 				UserID: 1,
 				Status: 1,
 			},
-			mock: func() {
-				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
-				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
-				taskRepo.EXPECT().CreateTask(ctx, tx, task_entity.Task{
+			mock: func(prop *MockServiceProp) {
+				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
+				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
+				prop.TaskRepo.EXPECT().CreateTask(ctx, prop.TX, task_entity.Task{
 					Title:  "title",
 					UserID: 1,
 					Status: 1,
 				}).Once().Return(1, nil)
-				tx.EXPECT().Commit(ctx).Once().Return(nil)
+				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr:    nil,
 			expectTaskID: 1,
@@ -51,9 +71,9 @@ func TestCreateTaskBiz_CreateTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			biz := NewCreateTaskBiz(db, taskRepo, userRepo)
-			tt.mock()
-			taskID, err := biz.CreateTask(ctx, tt.task)
+			sv, prop := NewMockTaskService(t)
+			tt.mock(prop)
+			taskID, err := sv.CreateTask(ctx, tt.task)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return
@@ -64,13 +84,12 @@ func TestCreateTaskBiz_CreateTask(t *testing.T) {
 }
 
 func TestCreateTaskBiz_ValidateTask(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
-	userRepo := mock_repo.NewUserRepo(t)
-	db := mock_db.NewDB(t)
 	tests := []struct {
 		name      string
 		task      task_entity.Task
-		mock      func()
+		mock      func(prop *MockServiceProp)
 		expectErr *common.AppError
 	}{
 		{
@@ -78,7 +97,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 			task: task_entity.Task{
 				Title: "",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorTitleIsEmpty, "ValidateTask"),
 		},
 		{
@@ -86,7 +105,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 			task: task_entity.Task{
 				Title: "title",
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorUserIsEmpty, "ValidateTask"),
 		},
 		{
@@ -96,7 +115,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 				UserID: 1,
 				Status: 3,
 			},
-			mock:      func() {},
+			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorInvalidStatus, "ValidateTask"),
 		},
 		{
@@ -106,8 +125,8 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 				UserID: 1,
 				Status: 1,
 			},
-			mock: func() {
-				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{}, nil)
+			mock: func(prop *MockServiceProp) {
+				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{}, nil)
 			},
 			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorUserNotFound, "ValidateTask"),
 		},
@@ -115,12 +134,9 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			biz := CreateTaskBiz{
-				DB:       db,
-				UserRepo: userRepo,
-			}
-			tt.mock()
-			err := biz.ValidateTask(ctx, tt.task)
+			sv, prop := NewMockTaskService(t)
+			tt.mock(prop)
+			err := sv.ValidateTask(ctx, tt.task)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr.Code, err.(*common.AppError).Code)
 				assert.Equal(t, tt.expectErr.Message, err.(*common.AppError).Message)

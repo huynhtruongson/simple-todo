@@ -1,11 +1,9 @@
-package task_biz
+package task_service
 
 import (
 	"context"
 	"testing"
 
-	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
-	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 
@@ -14,15 +12,12 @@ import (
 )
 
 func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
-	userRepo := mock_repo.NewUserRepo(t)
-	taskRepo := mock_repo.NewTaskRepo(t)
-	db := mock_db.NewDB(t)
-	tx := mock_db.NewTx(t)
 	tests := []struct {
 		name      string
 		task      task_entity.Task
-		mock      func()
+		mock      func(prop *MockServiceProp)
 		expectErr error
 	}{
 		{
@@ -33,17 +28,17 @@ func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
 				UserID: 1,
 				Status: 1,
 			},
-			mock: func() {
-				taskRepo.EXPECT().GetTasksByIds(ctx, db, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
-				userRepo.EXPECT().GetUsersByUserIds(ctx, db, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
-				db.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(tx, nil)
-				taskRepo.EXPECT().UpdateTask(ctx, tx, task_entity.Task{
+			mock: func(prop *MockServiceProp) {
+				prop.TaskRepo.EXPECT().GetTasksByIds(ctx, prop.DB, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
+				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
+				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
+				prop.TaskRepo.EXPECT().UpdateTask(ctx, prop.TX, task_entity.Task{
 					TaskID: 1,
 					Title:  "title",
 					UserID: 1,
 					Status: 1,
 				}).Once().Return(nil)
-				tx.EXPECT().Commit(ctx).Once().Return(nil)
+				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr: nil,
 		},
@@ -51,9 +46,9 @@ func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			biz := NewUpdateTaskBiz(db, taskRepo, userRepo)
-			tt.mock()
-			err := biz.UpdateTask(ctx, tt.task)
+			sv, prop := NewMockTaskService(t)
+			tt.mock(prop)
+			err := sv.UpdateTask(ctx, tt.task)
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr, err)
 				return

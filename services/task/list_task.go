@@ -1,34 +1,16 @@
-package task_biz
+package task_service
 
 import (
 	"context"
 	"math"
 
 	"github.com/huynhtruongson/simple-todo/common"
-	"github.com/huynhtruongson/simple-todo/lib"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 )
 
-type TasksWithPaging struct {
-	Tasks  []task_entity.Task `json:"tasks"`
-	Paging common.Paging      `json:"pagination"`
-}
-
-type ListTaskBiz struct {
-	DB lib.DB
-	TaskRepo
-}
-
-func NewListTaskBiz(db lib.DB, taskRepo TaskRepo) *ListTaskBiz {
-	return &ListTaskBiz{
-		DB:       db,
-		TaskRepo: taskRepo,
-	}
-}
-
-func (biz ListTaskBiz) ListTask(ctx context.Context, paging common.Paging, filter common.Filter) (TasksWithPaging, error) {
-	tasksWithPaging := TasksWithPaging{}
-	totalTasks, err := biz.TaskRepo.CountTask(ctx, biz.DB, filter.UserID)
+func (s *TaskService) ListTask(ctx context.Context, paging common.Paging, filter common.Filter) (task_entity.TasksWithPaging, error) {
+	tasksWithPaging := task_entity.TasksWithPaging{}
+	totalTasks, err := s.TaskRepo.CountTask(ctx, s.DB, filter.UserID)
 	paging.Total = totalTasks
 	if err != nil {
 		return tasksWithPaging, common.NewInternalError(err, common.InternalErrorMessage, "ListTask.TaskRepo.CountTask")
@@ -45,7 +27,7 @@ func (biz ListTaskBiz) ListTask(ctx context.Context, paging common.Paging, filte
 	}
 	offset := paging.Limit * (paging.Page - 1)
 
-	tasks, err := biz.TaskRepo.GetTasksWithFilter(ctx, biz.DB, filter.UserID, paging.Limit, offset)
+	tasks, err := s.TaskRepo.GetTasksWithFilter(ctx, s.DB, filter.UserID, paging.Limit, offset)
 	if err != nil {
 		return tasksWithPaging, common.NewInternalError(err, common.InternalErrorMessage, "ListTask.TaskRepo.GetTasksWithFilter")
 	}

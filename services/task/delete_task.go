@@ -1,4 +1,4 @@
-package task_biz
+package task_service
 
 import (
 	"context"
@@ -10,28 +10,16 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type DeleteTaskBiz struct {
-	DB lib.DB
-	TaskRepo
-}
-
-func NewDeleteTaskBiz(db lib.DB, taskRepo TaskRepo) *CreateTaskBiz {
-	return &CreateTaskBiz{
-		DB:       db,
-		TaskRepo: taskRepo,
-	}
-}
-
-func (biz CreateTaskBiz) DeleteTask(ctx context.Context, userID, taskID int) error {
-	tasks, err := biz.TaskRepo.GetTasksByIds(ctx, biz.DB, userID, []int{taskID})
+func (s *TaskService) DeleteTask(ctx context.Context, userID, taskID int) error {
+	tasks, err := s.TaskRepo.GetTasksByIds(ctx, s.DB, userID, []int{taskID})
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "DeleteTask.TaskRepo.GetTasksByIds")
 	}
 	if len(tasks) != 1 {
 		return common.NewInvalidRequestError(err, task_entity.ErrorTaskNotFound, "DeleteTask")
 	}
-	if err := lib.ExecTX(ctx, biz.DB, func(ctx context.Context, tx pgx.Tx) error {
-		err := biz.TaskRepo.DeleteTask(ctx, tx, taskID)
+	if err := lib.ExecTX(ctx, s.DB, func(ctx context.Context, tx pgx.Tx) error {
+		err := s.TaskRepo.DeleteTask(ctx, tx, taskID)
 		if err != nil {
 			return common.NewInternalError(err, common.InternalErrorMessage, "DeleteTask.TaskRepo.DeleteTask")
 		}
