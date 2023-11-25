@@ -14,12 +14,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *AuthService) Login(ctx context.Context, username, password string) (acToken string, rfToken string, e error) {
-	if username == "" || password == "" {
+func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, info auth_entity.LoginInfo) (acToken string, rfToken string, e error) {
+	if cred.Username == "" || cred.Password == "" {
 		e = common.NewInvalidRequestError(nil, auth_entity.ErrorEmptyCredential, "Login.UserRepo.GetUsersByUsername")
 		return
 	}
-	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, username)
+	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, cred.Username)
 	if err != nil {
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.UserRepo.GetUsersByUsername")
 		return
@@ -28,7 +28,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (acT
 		e = common.NewInvalidRequestError(nil, auth_entity.ErrorInvalidCredential, "")
 		return
 	}
-	if err := utils.CheckPassword(password, users[0].Password); err != nil {
+	if err := utils.CheckPassword(cred.Password, users[0].Password); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			e = common.NewInvalidRequestError(nil, auth_entity.ErrorInvalidCredential, "")
 			return
@@ -47,7 +47,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (acT
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.CreateRefreshToken")
 		return
 	}
-	session := auth_entity.NewSession(payload.ID, payload.UserID, rfToken, payload.ExpiresAt)
+	session := auth_entity.NewSession(payload.ID, payload.UserID, rfToken, payload.ExpiresAt, info.UserAgent, info.ClientIP)
 
 	if err := lib.ExecTX(ctx, s.DB, func(ctx context.Context, tx pgx.Tx) error {
 		return s.SessionRepo.CreateSession(ctx, tx, session)

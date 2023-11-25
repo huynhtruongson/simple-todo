@@ -17,12 +17,14 @@ type Session struct {
 	CreatedAt    time.Time
 }
 
-func NewSession(id uuid.UUID, userId int, rfToken string, expiresAt time.Time) Session {
+func NewSession(id uuid.UUID, userId int, rfToken string, expiresAt time.Time, userAgent, clientIp string) Session {
 	return Session{
 		SessionID:    id,
 		UserID:       userId,
 		RefreshToken: rfToken,
 		ExpiresAt:    expiresAt,
+		UserAgent:    userAgent,
+		ClientIP:     clientIp,
 	}
 }
 

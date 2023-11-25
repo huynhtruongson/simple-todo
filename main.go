@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 
-	"github.com/huynhtruongson/simple-todo/middleware"
+	"github.com/huynhtruongson/simple-todo/interceptor"
 	"github.com/huynhtruongson/simple-todo/pb"
 	auth_service "github.com/huynhtruongson/simple-todo/services/auth"
 	auth_port "github.com/huynhtruongson/simple-todo/services/auth/port"
@@ -22,6 +23,7 @@ import (
 	"github.com/huynhtruongson/simple-todo/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -52,7 +54,8 @@ func main() {
 	taskService := task_service.NewTaskService(db, taskRepo, userRepo)
 	userService := user_service.NewUserService(db, userRepo)
 
-	go runGRPCServer(config, userService)
+	// go runGatewayServer(config, authService)
+	go runGRPCServer(config, tokenMaker, userService, authService, taskService)
 	runGinServer(r, config, tokenMaker, authService, userService, taskService)
 }
 
@@ -76,13 +79,13 @@ func runGinServer(
 		}
 
 		user := v1.Group("/user")
-		user.Use(middleware.AuthMiddleware(tokenMaker))
+		// user.Use(interceptor.AuthMiddleware(tokenMaker))
 		{
 			user.POST("/create", userAPI.CreateUser)
 		}
 
 		task := v1.Group("/task")
-		task.Use(middleware.AuthMiddleware(tokenMaker))
+		task.Use(interceptor.AuthMiddleware(tokenMaker))
 		{
 			task.GET("/list", taskAPI.ListTask)
 			task.POST("/create", taskAPI.CreateTask)
@@ -96,11 +99,19 @@ func runGinServer(
 
 func runGRPCServer(
 	config utils.Config,
+	tokenMaker token.TokenMaker,
 	userSv *user_service.UserService,
+	authSv *auth_service.AuthService,
+	taskSv *task_service.TaskService,
 ) {
-	grpcServer := grpc.NewServer()
+	authInterceptor := interceptor.NewAuthInterceptor(tokenMaker)
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(interceptor.UnaryServerInterceptor(authInterceptor)))
 	userGRPCService := user_port.NewUserGRPCService(userSv)
 	pb.RegisterUserServiceServer(grpcServer, userGRPCService)
+	authGRPCService := auth_port.NewAuthGRPCService(authSv)
+	pb.RegisterAuthServiceServer(grpcServer, authGRPCService)
+	taskGRPCService := task_port.NewTaskGRPCService(taskSv)
+	pb.RegisterTaskServiceServer(grpcServer, taskGRPCService)
 	reflection.Register(grpcServer)
 
 	listener, err := net.Listen("tcp", config.GRPCServerPort)
@@ -111,5 +122,34 @@ func runGRPCServer(
 	err = grpcServer.Serve(listener)
 	if err != nil {
 		log.Fatal("cannot serve grpc server", err)
+	}
+}
+
+func runGatewayServer(
+	config utils.Config,
+	authSv *auth_service.AuthService,
+) {
+	grpcMux := runtime.NewServeMux()
+	authGRPCService := auth_port.NewAuthGRPCService(authSv)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err := pb.RegisterAuthServiceHandlerServer(ctx, grpcMux, authGRPCService)
+	if err != nil {
+		log.Fatal("can not register handler server", err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", grpcMux)
+
+	listener, err := net.Listen("tcp", config.ApiServerPort)
+	if err != nil {
+		log.Fatal("cannot create listener", err)
+	}
+	log.Printf("Listening and serving HTTP Gateway on %s", listener.Addr().String())
+	err = http.Serve(listener, mux)
+	if err != nil {
+		log.Fatal("cannot serve http gateway server", err)
 	}
 }

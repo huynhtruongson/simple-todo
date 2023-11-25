@@ -15,5 +15,5 @@ message CreateUserResponse {
 }
 
 service UserService {
-    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
 }

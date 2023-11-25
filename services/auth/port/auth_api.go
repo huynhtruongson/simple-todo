@@ -1,9 +1,13 @@
 package auth_port
 
-import "context"
+import (
+	"context"
+
+	auth_entity "github.com/huynhtruongson/simple-todo/services/auth/entity"
+)
 
 type AuthService interface {
-	Login(ctx context.Context, username, password string) (acToken string, rfToken string, e error)
+	Login(ctx context.Context, credential auth_entity.Credential, loginInfo auth_entity.LoginInfo) (acToken string, rfToken string, e error)
 	RenewToken(ctx context.Context, rfToken string) (string, error)
 }
 

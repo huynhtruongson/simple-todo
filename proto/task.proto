@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/huynhtruongson/simple-todo/pb";
+
+message CreateTaskRequest {
+    string title = 1;
+    int32 status = 2;
+    optional string description = 3;
+}
+
+message CreateTaskResponse {
+    int64 data = 1;
+}
+
+service TaskService {
+    rpc CreateTask (CreateTaskRequest) returns (CreateTaskResponse) {};
+}

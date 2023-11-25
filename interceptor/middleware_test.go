@@ -1,4 +1,4 @@
-package middleware
+package interceptor
 
 import (
 	"fmt"
@@ -14,6 +14,7 @@ import (
 )
 
 func TestAuthMiddleware(t *testing.T) {
+	t.Parallel()
 	r := gin.Default()
 	key := utils.RandomString(32)
 	tokenMaker, err := token.NewPasetoMaker(key)

@@ -110,7 +110,7 @@ func TestLoginBiz_Login(t *testing.T) {
 				prop.TokenMaker.EXPECT().CreateToken(1, token.AccessTokenDuration, token.AccessToken).Once().Return("accessToken", mockACTokenPayload, nil)
 				prop.TokenMaker.EXPECT().CreateToken(1, token.RefreshTokenDuration, token.RefreshToken).Once().Return("refreshToken", mockRFTokenPayload, nil)
 				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
-				prop.SessionRepo.EXPECT().CreateSession(ctx, prop.TX, auth_entity.NewSession(mockRFTokenPayload.ID, mockRFTokenPayload.UserID, "refreshToken", mockRFTokenPayload.ExpiresAt)).Once().Return(nil)
+				prop.SessionRepo.EXPECT().CreateSession(ctx, prop.TX, auth_entity.NewSession(mockRFTokenPayload.ID, mockRFTokenPayload.UserID, "refreshToken", mockRFTokenPayload.ExpiresAt, "", "")).Once().Return(nil)
 				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr: nil,
@@ -121,7 +121,7 @@ func TestLoginBiz_Login(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			sv, prop := NewMockAuthService(t)
 			tt.mock(prop)
-			acToken, rfToken, err := sv.Login(ctx, tt.cred.Username, tt.cred.Password)
+			acToken, rfToken, err := sv.Login(ctx, tt.cred, auth_entity.LoginInfo{})
 			if tt.expectErr != nil {
 				assert.Equal(t, tt.expectErr.Code, err.(*common.AppError).Code)
 				assert.Equal(t, tt.expectErr.Message, err.(*common.AppError).Message)

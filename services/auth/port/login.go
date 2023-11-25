@@ -16,7 +16,11 @@ func (api *AuthAPI) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, common.NewInvalidRequestError(err, common.InvalidRequestErrorMessage, "Login Bind Json"))
 		return
 	}
-	acToken, rfToken, err := api.AuthService.Login(ctx, credential.Username, credential.Password)
+
+	acToken, rfToken, err := api.AuthService.Login(ctx, credential, auth_entity.LoginInfo{
+		UserAgent: ctx.Request.UserAgent(),
+		ClientIP:  ctx.ClientIP(),
+	})
 	if err != nil {
 		code := http.StatusBadRequest
 		appErr, ok := err.(*common.AppError)

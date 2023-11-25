@@ -5,6 +5,11 @@ type Credential struct {
 	Password string `json:"password"`
 }
 
+type LoginInfo struct {
+	UserAgent string `json:"-"`
+	ClientIP  string `json:"-"`
+}
+
 type LoginResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`

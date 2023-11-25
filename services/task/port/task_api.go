@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/huynhtruongson/simple-todo/common"
-	"github.com/huynhtruongson/simple-todo/middleware"
+	"github.com/huynhtruongson/simple-todo/interceptor"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 	"github.com/huynhtruongson/simple-todo/token"
 
@@ -40,7 +40,7 @@ func (api *TaskAPI) ListTask(ctx *gin.Context) {
 		common.NewInvalidRequestError(err, common.InvalidRequestErrorMessage, "ListTask Get URL Query Param")
 	}
 
-	payload := ctx.MustGet(middleware.AuthorizationPayloadKey).(token.TokenPayload)
+	payload := ctx.MustGet(interceptor.AuthorizationPayloadKey).(token.TokenPayload)
 
 	tasks, err := api.TaskService.ListTask(ctx, common.Paging{Page: page, Limit: limit}, common.Filter{UserID: payload.UserID})
 	if err != nil {
@@ -61,7 +61,7 @@ func (api *TaskAPI) CreateTask(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, common.NewInvalidRequestError(err, common.InvalidRequestErrorMessage, "CreateTask Bind Json"))
 		return
 	}
-	payload := ctx.MustGet(middleware.AuthorizationPayloadKey).(token.TokenPayload)
+	payload := ctx.MustGet(interceptor.AuthorizationPayloadKey).(token.TokenPayload)
 	task.UserID = payload.UserID
 	taskID, err := api.TaskService.CreateTask(ctx, task)
 	if err != nil {
@@ -83,7 +83,7 @@ func (api *TaskAPI) DeleteTask(ctx *gin.Context) {
 		common.NewInvalidRequestError(err, common.InvalidRequestErrorMessage, "DeleteTask Get URL Param")
 	}
 
-	payload := ctx.MustGet(middleware.AuthorizationPayloadKey).(token.TokenPayload)
+	payload := ctx.MustGet(interceptor.AuthorizationPayloadKey).(token.TokenPayload)
 
 	err = api.TaskService.DeleteTask(ctx, payload.UserID, taskId)
 	if err != nil {
@@ -111,7 +111,7 @@ func (api *TaskAPI) UpdateTask(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, common.NewInvalidRequestError(err, common.InvalidRequestErrorMessage, "UpdateTask Bind Json"))
 		return
 	}
-	payload := ctx.MustGet(middleware.AuthorizationPayloadKey).(token.TokenPayload)
+	payload := ctx.MustGet(interceptor.AuthorizationPayloadKey).(token.TokenPayload)
 	task.TaskID = taskId
 	task.UserID = payload.UserID
 

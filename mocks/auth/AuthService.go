@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	auth_entity "github.com/huynhtruongson/simple-todo/services/auth/entity"
+
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"
@@ -21,30 +23,30 @@ func (_m *AuthService) EXPECT() *AuthService_Expecter {
 	return &AuthService_Expecter{mock: &_m.Mock}
 }
 
-// Login provides a mock function with given fields: ctx, username, password
-func (_m *AuthService) Login(ctx context.Context, username string, password string) (string, string, error) {
-	ret := _m.Called(ctx, username, password)
+// Login provides a mock function with given fields: ctx, credential, loginInfo
+func (_m *AuthService) Login(ctx context.Context, credential auth_entity.Credential, loginInfo auth_entity.LoginInfo) (string, string, error) {
+	ret := _m.Called(ctx, credential, loginInfo)
 
 	var r0 string
 	var r1 string
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, string, error)); ok {
-		return rf(ctx, username, password)
+	if rf, ok := ret.Get(0).(func(context.Context, auth_entity.Credential, auth_entity.LoginInfo) (string, string, error)); ok {
+		return rf(ctx, credential, loginInfo)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
-		r0 = rf(ctx, username, password)
+	if rf, ok := ret.Get(0).(func(context.Context, auth_entity.Credential, auth_entity.LoginInfo) string); ok {
+		r0 = rf(ctx, credential, loginInfo)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) string); ok {
-		r1 = rf(ctx, username, password)
+	if rf, ok := ret.Get(1).(func(context.Context, auth_entity.Credential, auth_entity.LoginInfo) string); ok {
+		r1 = rf(ctx, credential, loginInfo)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, string) error); ok {
-		r2 = rf(ctx, username, password)
+	if rf, ok := ret.Get(2).(func(context.Context, auth_entity.Credential, auth_entity.LoginInfo) error); ok {
+		r2 = rf(ctx, credential, loginInfo)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -59,15 +61,15 @@ type AuthService_Login_Call struct {
 
 // Login is a helper method to define mock.On call
 //   - ctx context.Context
-//   - username string
-//   - password string
-func (_e *AuthService_Expecter) Login(ctx interface{}, username interface{}, password interface{}) *AuthService_Login_Call {
-	return &AuthService_Login_Call{Call: _e.mock.On("Login", ctx, username, password)}
+//   - credential auth_entity.Credential
+//   - loginInfo auth_entity.LoginInfo
+func (_e *AuthService_Expecter) Login(ctx interface{}, credential interface{}, loginInfo interface{}) *AuthService_Login_Call {
+	return &AuthService_Login_Call{Call: _e.mock.On("Login", ctx, credential, loginInfo)}
 }
 
-func (_c *AuthService_Login_Call) Run(run func(ctx context.Context, username string, password string)) *AuthService_Login_Call {
+func (_c *AuthService_Login_Call) Run(run func(ctx context.Context, credential auth_entity.Credential, loginInfo auth_entity.LoginInfo)) *AuthService_Login_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string))
+		run(args[0].(context.Context), args[1].(auth_entity.Credential), args[2].(auth_entity.LoginInfo))
 	})
 	return _c
 }
@@ -77,7 +79,7 @@ func (_c *AuthService_Login_Call) Return(acToken string, rfToken string, e error
 	return _c
 }
 
-func (_c *AuthService_Login_Call) RunAndReturn(run func(context.Context, string, string) (string, string, error)) *AuthService_Login_Call {
+func (_c *AuthService_Login_Call) RunAndReturn(run func(context.Context, auth_entity.Credential, auth_entity.LoginInfo) (string, string, error)) *AuthService_Login_Call {
 	_c.Call.Return(run)
 	return _c
 }

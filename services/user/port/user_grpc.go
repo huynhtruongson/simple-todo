@@ -19,11 +19,14 @@ func NewUserGRPCService(userService UserService) *UserGRPCService {
 	}
 }
 
+func (sv *UserGRPCService) AuthHandlerOverride(ctx context.Context) (context.Context, error) {
+	return ctx, nil
+}
+
 func (sv *UserGRPCService) CreateUser(ctx context.Context, userReq *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	user := toUser(userReq)
 	userID, err := sv.UserService.CreateUser(ctx, user)
 	if err != nil {
-
 		return nil, common.MapAppErrorToGRPCError(err, "Create user error")
 	}
 	return &pb.CreateUserResponse{
