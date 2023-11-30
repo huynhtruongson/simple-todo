@@ -70,6 +70,7 @@ func (api *TaskAPI) CreateTask(ctx *gin.Context) {
 		if ok {
 			code = appErr.Code
 		}
+		ctx.Error(err)
 		ctx.JSON(code, err)
 		return
 	}
@@ -92,6 +93,7 @@ func (api *TaskAPI) DeleteTask(ctx *gin.Context) {
 		if ok {
 			code = appErr.Code
 		}
+		ctx.Error(err)
 		ctx.JSON(code, err)
 		return
 	}
@@ -122,6 +124,7 @@ func (api *TaskAPI) UpdateTask(ctx *gin.Context) {
 		if ok {
 			code = appErr.Code
 		}
+		ctx.Error(err)
 		ctx.JSON(code, err)
 		return
 	}

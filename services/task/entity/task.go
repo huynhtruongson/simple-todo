@@ -49,12 +49,12 @@ var (
 	TaskStatusString = []string{"Not start", "Doing", "Finish"}
 )
 
-const (
-	ErrorTitleIsEmpty  = "Title is empty"
-	ErrorUserIsEmpty   = "User is empty"
-	ErrorInvalidStatus = "Status is invalid"
-	ErrorUserNotFound  = "User not found"
-	ErrorTaskNotFound  = "Task not found"
+var (
+	ErrorTitleIsEmpty  = errors.New("Title is empty")
+	ErrorUserIsEmpty   = errors.New("User is empty")
+	ErrorInvalidStatus = errors.New("Status is invalid")
+	ErrorUserNotFound  = errors.New("User not found")
+	ErrorTaskNotFound  = errors.New("Task not found")
 )
 
 func (status TaskStatus) String() string {

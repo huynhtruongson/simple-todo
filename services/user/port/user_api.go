@@ -38,6 +38,7 @@ func (sv *UserAPIService) CreateUser(ctx *gin.Context) {
 		if ok {
 			code = appErr.Code
 		}
+		ctx.Error(err)
 		ctx.JSON(code, err)
 		return
 	}

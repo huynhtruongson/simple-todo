@@ -78,6 +78,62 @@ func (_c *UserRepo_CreateUser_Call) RunAndReturn(run func(context.Context, lib.Q
 	return _c
 }
 
+// GetUsersByEmail provides a mock function with given fields: ctx, db, email
+func (_m *UserRepo) GetUsersByEmail(ctx context.Context, db lib.QueryExecer, email string) ([]user_entity.User, error) {
+	ret := _m.Called(ctx, db, email)
+
+	var r0 []user_entity.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, string) ([]user_entity.User, error)); ok {
+		return rf(ctx, db, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, lib.QueryExecer, string) []user_entity.User); ok {
+		r0 = rf(ctx, db, email)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]user_entity.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, lib.QueryExecer, string) error); ok {
+		r1 = rf(ctx, db, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepo_GetUsersByEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersByEmail'
+type UserRepo_GetUsersByEmail_Call struct {
+	*mock.Call
+}
+
+// GetUsersByEmail is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db lib.QueryExecer
+//   - email string
+func (_e *UserRepo_Expecter) GetUsersByEmail(ctx interface{}, db interface{}, email interface{}) *UserRepo_GetUsersByEmail_Call {
+	return &UserRepo_GetUsersByEmail_Call{Call: _e.mock.On("GetUsersByEmail", ctx, db, email)}
+}
+
+func (_c *UserRepo_GetUsersByEmail_Call) Run(run func(ctx context.Context, db lib.QueryExecer, email string)) *UserRepo_GetUsersByEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(lib.QueryExecer), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *UserRepo_GetUsersByEmail_Call) Return(_a0 []user_entity.User, _a1 error) *UserRepo_GetUsersByEmail_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepo_GetUsersByEmail_Call) RunAndReturn(run func(context.Context, lib.QueryExecer, string) ([]user_entity.User, error)) *UserRepo_GetUsersByEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUsersByUsername provides a mock function with given fields: ctx, db, username
 func (_m *UserRepo) GetUsersByUsername(ctx context.Context, db lib.QueryExecer, username string) ([]user_entity.User, error) {
 	ret := _m.Called(ctx, db, username)

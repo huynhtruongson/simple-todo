@@ -10,6 +10,7 @@ import (
 type UserRepo interface {
 	CreateUser(ctx context.Context, db lib.QueryExecer, user user_entity.User) (int, error)
 	GetUsersByUsername(ctx context.Context, db lib.QueryExecer, username string) ([]user_entity.User, error)
+	GetUsersByEmail(ctx context.Context, db lib.QueryExecer, email string) ([]user_entity.User, error)
 }
 type UserService struct {
 	DB lib.DB

@@ -11,20 +11,22 @@ import (
 
 func (s *AuthService) RenewToken(ctx context.Context, rfToken string) (string, error) {
 	payload, err := s.TokenMaker.VerifyToken(rfToken)
+
 	if err != nil {
-		return "", common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, "")
+		return "", common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage.Error(), "")
 	}
 	sessions, err := s.SessionRepo.GetSessionByIds(ctx, s.DB, uuid.UUIDs{payload.ID})
 	if err != nil {
 		return "", common.NewInternalError(err, common.InternalErrorMessage, "RenewToken.GetSessionByIds")
 	}
+
 	switch {
 	case len(sessions) != 1:
-		return "", common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, "")
+		return "", common.NewUnAuthorizedRequestError(interceptor.UnAuthorizedMessage, interceptor.UnAuthorizedMessage.Error(), "")
 	case sessions[0].RefreshToken != rfToken:
-		return "", common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, "")
+		return "", common.NewUnAuthorizedRequestError(interceptor.UnAuthorizedMessage, interceptor.UnAuthorizedMessage.Error(), "")
 	case sessions[0].IsBlocked:
-		return "", common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, "")
+		return "", common.NewUnAuthorizedRequestError(interceptor.UnAuthorizedMessage, interceptor.UnAuthorizedMessage.Error(), "")
 	}
 	token, _, err := s.TokenMaker.CreateToken(sessions[0].UserID, token.AccessTokenDuration, token.AccessToken)
 	if err != nil {

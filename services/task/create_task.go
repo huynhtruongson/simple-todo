@@ -32,18 +32,18 @@ func (s *TaskService) CreateTask(ctx context.Context, task task_entity.Task) (in
 func (s *TaskService) ValidateTask(ctx context.Context, task task_entity.Task) error {
 	switch {
 	case strings.TrimSpace(task.Title) == "":
-		return common.NewInvalidRequestError(nil, task_entity.ErrorTitleIsEmpty, "ValidateTask")
+		return common.NewInvalidRequestError(task_entity.ErrorTitleIsEmpty, task_entity.ErrorTitleIsEmpty.Error(), "ValidateTask")
 	case task.UserID == 0:
-		return common.NewInvalidRequestError(nil, task_entity.ErrorUserIsEmpty, "ValidateTask")
+		return common.NewInvalidRequestError(task_entity.ErrorUserIsEmpty, task_entity.ErrorUserIsEmpty.Error(), "ValidateTask")
 	case task.Status > 2:
-		return common.NewInvalidRequestError(nil, task_entity.ErrorInvalidStatus, "ValidateTask")
+		return common.NewInvalidRequestError(task_entity.ErrorInvalidStatus, task_entity.ErrorInvalidStatus.Error(), "ValidateTask")
 	}
 	users, err := s.UserRepo.GetUsersByUserIds(ctx, s.DB, []int{task.UserID})
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "ValidateTask.UserRepo.GetUsersByUserIds")
 	}
 	if len(users) == 0 {
-		return common.NewInvalidRequestError(nil, task_entity.ErrorUserNotFound, "ValidateTask")
+		return common.NewInvalidRequestError(task_entity.ErrorUserNotFound, task_entity.ErrorUserNotFound.Error(), "ValidateTask")
 	}
 	return nil
 }

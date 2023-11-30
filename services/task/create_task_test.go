@@ -98,7 +98,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 				Title: "",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorTitleIsEmpty, "ValidateTask"),
+			expectErr: common.NewInvalidRequestError(task_entity.ErrorTitleIsEmpty, task_entity.ErrorTitleIsEmpty.Error(), "ValidateTask"),
 		},
 		{
 			name: "should throw error when userID is empty",
@@ -106,7 +106,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 				Title: "title",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorUserIsEmpty, "ValidateTask"),
+			expectErr: common.NewInvalidRequestError(task_entity.ErrorUserIsEmpty, task_entity.ErrorUserIsEmpty.Error(), "ValidateTask"),
 		},
 		{
 			name: "should throw error when status is invalid",
@@ -116,7 +116,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 				Status: 3,
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorInvalidStatus, "ValidateTask"),
+			expectErr: common.NewInvalidRequestError(task_entity.ErrorInvalidStatus, task_entity.ErrorInvalidStatus.Error(), "ValidateTask"),
 		},
 		{
 			name: "should throw error when userID does not exist",
@@ -128,7 +128,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{}, nil)
 			},
-			expectErr: common.NewInvalidRequestError(nil, task_entity.ErrorUserNotFound, "ValidateTask"),
+			expectErr: common.NewInvalidRequestError(task_entity.ErrorUserNotFound, task_entity.ErrorUserNotFound.Error(), "ValidateTask"),
 		},
 	}
 

@@ -16,7 +16,7 @@ import (
 
 func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, info auth_entity.LoginInfo) (acToken string, rfToken string, e error) {
 	if cred.Username == "" || cred.Password == "" {
-		e = common.NewInvalidRequestError(nil, auth_entity.ErrorEmptyCredential, "Login.UserRepo.GetUsersByUsername")
+		e = common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorEmptyCredential.Error(), "Login.UserRepo.GetUsersByUsername")
 		return
 	}
 	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, cred.Username)
@@ -25,12 +25,12 @@ func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, in
 		return
 	}
 	if len(users) != 1 {
-		e = common.NewInvalidRequestError(nil, auth_entity.ErrorInvalidCredential, "")
+		e = common.NewInvalidRequestError(auth_entity.ErrorInvalidCredential, auth_entity.ErrorInvalidCredential.Error(), "")
 		return
 	}
 	if err := utils.CheckPassword(cred.Password, users[0].Password); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			e = common.NewInvalidRequestError(nil, auth_entity.ErrorInvalidCredential, "")
+			e = common.NewInvalidRequestError(auth_entity.ErrorInvalidCredential, auth_entity.ErrorInvalidCredential.Error(), "")
 			return
 		}
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.CheckPassword")

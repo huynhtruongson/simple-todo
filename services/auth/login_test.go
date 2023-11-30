@@ -66,7 +66,7 @@ func TestLoginBiz_Login(t *testing.T) {
 				Password: "password",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, auth_entity.ErrorEmptyCredential, "Login.UserRepo.GetUsersByUsername"),
+			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorEmptyCredential.Error(), "Login.UserRepo.GetUsersByUsername"),
 		},
 		{
 			name: "should validate empty password correctly",
@@ -75,7 +75,7 @@ func TestLoginBiz_Login(t *testing.T) {
 				Password: "",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, auth_entity.ErrorEmptyCredential, "Login.UserRepo.GetUsersByUsername"),
+			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorEmptyCredential.Error(), "Login.UserRepo.GetUsersByUsername"),
 		},
 		{
 			name: "should validate user not found correctly",
@@ -86,7 +86,7 @@ func TestLoginBiz_Login(t *testing.T) {
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{}, nil)
 			},
-			expectErr: common.NewInvalidRequestError(nil, auth_entity.ErrorInvalidCredential, ""),
+			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorInvalidCredential.Error(), ""),
 		},
 		{
 			name: "should validate wrong password correctly",
@@ -97,7 +97,7 @@ func TestLoginBiz_Login(t *testing.T) {
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: 1, Password: hashedPwd}}, nil)
 			},
-			expectErr: common.NewInvalidRequestError(nil, auth_entity.ErrorInvalidCredential, ""),
+			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorInvalidCredential.Error(), ""),
 		},
 		{
 			name: "should return token correctly",

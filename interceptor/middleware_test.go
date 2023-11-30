@@ -27,21 +27,21 @@ func TestAuthMiddleware(t *testing.T) {
 		expectCode int
 	}{
 		{
-			name: EmptyAuthHeaderMessage,
+			name: EmptyAuthHeaderMessage.Error(),
 			setup: func(req *http.Request) {
 				req.Header.Set(AuthorizationHeaderKey, "")
 			},
 			expectCode: http.StatusUnauthorized,
 		},
 		{
-			name: InvalidAuthHeaderMessage,
+			name: InvalidAuthHeaderMessage.Error(),
 			setup: func(req *http.Request) {
 				req.Header.Set(AuthorizationHeaderKey, "token")
 			},
 			expectCode: http.StatusUnauthorized,
 		},
 		{
-			name: UnsupportedAuthTypeMessage,
+			name: UnsupportedAuthTypeMessage.Error(),
 			setup: func(req *http.Request) {
 				req.Header.Set(AuthorizationHeaderKey, "bearer123 token")
 			},

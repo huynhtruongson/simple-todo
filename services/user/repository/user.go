@@ -60,6 +60,34 @@ func (repo *UserRepo) GetUsersByUsername(ctx context.Context, db lib.QueryExecer
 	return users, nil
 }
 
+func (repo *UserRepo) GetUsersByEmail(ctx context.Context, db lib.QueryExecer, email string) ([]user_entity.User, error) {
+	var user user_entity.User
+	fields, _ := user.FieldMap()
+	query := fmt.Sprintf(
+		`SELECT %s FROM %s WHERE email = $1 AND deleted_at IS NULL`,
+		strings.Join(fields, ","),
+		user_entity.User{}.TableName(),
+	)
+
+	var users []user_entity.User
+	rows, err := db.Query(ctx, query, email)
+	if err != nil {
+		return users, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user user_entity.User
+		_, values := user.FieldMap()
+		if err := rows.Scan(values...); err != nil {
+			return users, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func (repo *UserRepo) GetUsersByUserIds(ctx context.Context, db lib.QueryExecer, ids []int) ([]user_entity.User, error) {
 	var user user_entity.User
 	fields, _ := user.FieldMap()

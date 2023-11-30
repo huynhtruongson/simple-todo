@@ -16,7 +16,7 @@ func (s *TaskService) DeleteTask(ctx context.Context, userID, taskID int) error 
 		return common.NewInternalError(err, common.InternalErrorMessage, "DeleteTask.TaskRepo.GetTasksByIds")
 	}
 	if len(tasks) != 1 {
-		return common.NewInvalidRequestError(err, task_entity.ErrorTaskNotFound, "DeleteTask")
+		return common.NewInvalidRequestError(task_entity.ErrorTaskNotFound, task_entity.ErrorTaskNotFound.Error(), "DeleteTask")
 	}
 	if err := lib.ExecTX(ctx, s.DB, func(ctx context.Context, tx pgx.Tx) error {
 		err := s.TaskRepo.DeleteTask(ctx, tx, taskID)

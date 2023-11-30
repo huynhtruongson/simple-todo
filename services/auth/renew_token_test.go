@@ -33,7 +33,7 @@ func TestRenewTokenBiz_RenewToken(t *testing.T) {
 				prop.TokenMaker.EXPECT().VerifyToken("token").Once().Return(mockPayload, nil)
 				prop.SessionRepo.EXPECT().GetSessionByIds(ctx, prop.DB, uuid.UUIDs{mockPayload.ID}).Once().Return([]auth_entity.Session{}, nil)
 			},
-			expectErr: common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, ""),
+			expectErr: common.NewUnAuthorizedRequestError(interceptor.UnAuthorizedMessage, interceptor.UnAuthorizedMessage.Error(), ""),
 		},
 		{
 			name:  "should validate mismatch refresh token correctly",
@@ -42,7 +42,7 @@ func TestRenewTokenBiz_RenewToken(t *testing.T) {
 				prop.TokenMaker.EXPECT().VerifyToken("wrong_token").Once().Return(mockPayload, nil)
 				prop.SessionRepo.EXPECT().GetSessionByIds(ctx, prop.DB, uuid.UUIDs{mockPayload.ID}).Once().Return([]auth_entity.Session{{RefreshToken: "token"}}, nil)
 			},
-			expectErr: common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, ""),
+			expectErr: common.NewUnAuthorizedRequestError(interceptor.UnAuthorizedMessage, interceptor.UnAuthorizedMessage.Error(), ""),
 		},
 		{
 			name:  "should validate mismatch refresh token is blocked",
@@ -51,7 +51,7 @@ func TestRenewTokenBiz_RenewToken(t *testing.T) {
 				prop.TokenMaker.EXPECT().VerifyToken("token").Once().Return(mockPayload, nil)
 				prop.SessionRepo.EXPECT().GetSessionByIds(ctx, prop.DB, uuid.UUIDs{mockPayload.ID}).Once().Return([]auth_entity.Session{{RefreshToken: "token", IsBlocked: true}}, nil)
 			},
-			expectErr: common.NewUnAuthorizedRequestError(err, interceptor.UnAuthorizedMessage, ""),
+			expectErr: common.NewUnAuthorizedRequestError(interceptor.UnAuthorizedMessage, interceptor.UnAuthorizedMessage.Error(), ""),
 		},
 		{
 			name:  "should validate mismatch refresh token is blocked",

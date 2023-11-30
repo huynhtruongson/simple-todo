@@ -90,7 +90,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				FullName: "",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorFullnameIsEmpty, "ValidateUser"),
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorFullnameIsEmpty, user_entity.ErrorFullnameIsEmpty.Error(), "ValidateUser"),
 		},
 		{
 			name: "should throw error when username is empty",
@@ -99,7 +99,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Username: "",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorUsernameIsEmpty, "ValidateUser"),
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorUsernameIsEmpty, user_entity.ErrorUsernameIsEmpty.Error(), "ValidateUser"),
 		},
 		{
 			name: "should throw error when username is less than 6 characters",
@@ -108,7 +108,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Username: "user",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorInvalidUsernameLength, "ValidateUser"),
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorInvalidUsernameLength, user_entity.ErrorInvalidUsernameLength.Error(), "ValidateUser"),
 		},
 		{
 			name: "should throw error when password is empty",
@@ -118,7 +118,7 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Password: "",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorPasswordIsEmpty, "ValidateUser"),
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorPasswordIsEmpty, user_entity.ErrorPasswordIsEmpty.Error(), "ValidateUser"),
 		},
 		{
 			name: "should throw error when password is less than 6 characters",
@@ -128,23 +128,66 @@ func TestCreateUserBiz_ValidateUser(t *testing.T) {
 				Password: "123",
 			},
 			mock:      func(prop *MockServiceProp) {},
-			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorInvalidPasswordLength, "ValidateUser"),
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorInvalidPasswordLength, user_entity.ErrorInvalidPasswordLength.Error(), "ValidateUser"),
 		},
 		{
 			name: "should throw error when username has already existed",
 			user: user_entity.User{
 				FullName: "fullname",
 				Username: "username",
+				Email:    "abc@gmail.com",
 				Password: "123123",
 			},
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{
 					FullName: "fullname",
 					Username: "username",
+					Email:    "abc@gmail.com",
 					Password: "123123",
 				}}, nil)
 			},
-			expectErr: common.NewInvalidRequestError(nil, user_entity.ErrorUserNameAlreadyExist, "ValidateUser"),
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorUserNameAlreadyExist, user_entity.ErrorUserNameAlreadyExist.Error(), "ValidateUser"),
+		},
+		{
+			name: "should throw error when email is empty",
+			user: user_entity.User{
+				FullName: "fullname",
+				Username: "username",
+				Email:    "",
+				Password: "123123",
+			},
+			mock:      func(prop *MockServiceProp) {},
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorEmailIsEmpty, user_entity.ErrorEmailIsEmpty.Error(), "ValidateUser"),
+		},
+		{
+			name: "should throw error when email is invalid",
+			user: user_entity.User{
+				FullName: "fullname",
+				Username: "username",
+				Email:    "abc",
+				Password: "123123",
+			},
+			mock:      func(prop *MockServiceProp) {},
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorInvalidEmail, user_entity.ErrorInvalidEmail.Error(), "ValidateUser"),
+		},
+		{
+			name: "should throw error when email has already existed",
+			user: user_entity.User{
+				FullName: "fullname",
+				Username: "username",
+				Email:    "abc@gmail.com",
+				Password: "123123",
+			},
+			mock: func(prop *MockServiceProp) {
+				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{}, nil)
+				prop.UserRepo.EXPECT().GetUsersByEmail(ctx, prop.DB, "abc@gmail.com").Once().Return([]user_entity.User{{
+					FullName: "fullname",
+					Username: "username",
+					Email:    "abc@gmail.com",
+					Password: "123123",
+				}}, nil)
+			},
+			expectErr: common.NewInvalidRequestError(user_entity.ErrorEmailAlreadyExist, user_entity.ErrorEmailAlreadyExist.Error(), "ValidateUser"),
 		},
 	}
 

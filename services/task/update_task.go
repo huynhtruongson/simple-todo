@@ -16,7 +16,7 @@ func (s *TaskService) UpdateTask(ctx context.Context, task task_entity.Task) err
 		return common.NewInternalError(err, common.InternalErrorMessage, "UpdateTask.TaskRepo.GetTasksByIds")
 	}
 	if len(tasks) != 1 {
-		return common.NewInvalidRequestError(err, task_entity.ErrorTaskNotFound, "UpdateTask")
+		return common.NewInvalidRequestError(task_entity.ErrorTaskNotFound, task_entity.ErrorTaskNotFound.Error(), "UpdateTask")
 	}
 	if err := s.ValidateTask(ctx, task); err != nil {
 		return err

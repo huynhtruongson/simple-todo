@@ -38,22 +38,33 @@ func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (in
 func (s *UserService) ValidateUser(ctx context.Context, user user_entity.User) error {
 	switch {
 	case user.FullName == "":
-		return common.NewInvalidRequestError(nil, user_entity.ErrorFullnameIsEmpty, "ValidateUser")
+		return common.NewInvalidRequestError(user_entity.ErrorFullnameIsEmpty, user_entity.ErrorFullnameIsEmpty.Error(), "ValidateUser")
 	case user.Username == "":
-		return common.NewInvalidRequestError(nil, user_entity.ErrorUsernameIsEmpty, "ValidateUser")
+		return common.NewInvalidRequestError(user_entity.ErrorUsernameIsEmpty, user_entity.ErrorUsernameIsEmpty.Error(), "ValidateUser")
 	case len(user.Username) < 6:
-		return common.NewInvalidRequestError(nil, user_entity.ErrorInvalidUsernameLength, "ValidateUser")
+		return common.NewInvalidRequestError(user_entity.ErrorInvalidUsernameLength, user_entity.ErrorInvalidUsernameLength.Error(), "ValidateUser")
 	case user.Password == "":
-		return common.NewInvalidRequestError(nil, user_entity.ErrorPasswordIsEmpty, "ValidateUser")
+		return common.NewInvalidRequestError(user_entity.ErrorPasswordIsEmpty, user_entity.ErrorPasswordIsEmpty.Error(), "ValidateUser")
 	case len(user.Password) < 6:
-		return common.NewInvalidRequestError(nil, user_entity.ErrorInvalidPasswordLength, "ValidateUser")
+		return common.NewInvalidRequestError(user_entity.ErrorInvalidPasswordLength, user_entity.ErrorInvalidPasswordLength.Error(), "ValidateUser")
+	case user.Email == "":
+		return common.NewInvalidRequestError(user_entity.ErrorEmailIsEmpty, user_entity.ErrorEmailIsEmpty.Error(), "ValidateUser")
+	case !user_entity.IsValidEmail(user.Email):
+		return common.NewInvalidRequestError(user_entity.ErrorInvalidEmail, user_entity.ErrorInvalidEmail.Error(), "ValidateUser")
 	}
 	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, user.Username)
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "ValidateUser.UserRepo.GetUsersByUsername")
 	}
 	if len(users) > 0 {
-		return common.NewInvalidRequestError(nil, user_entity.ErrorUserNameAlreadyExist, "ValidateUser")
+		return common.NewInvalidRequestError(user_entity.ErrorUserNameAlreadyExist, user_entity.ErrorUserNameAlreadyExist.Error(), "ValidateUser")
+	}
+	users, err = s.UserRepo.GetUsersByEmail(ctx, s.DB, user.Email)
+	if err != nil {
+		return common.NewInternalError(err, common.InternalErrorMessage, "ValidateUser.UserRepo.GetUsersByEmail")
+	}
+	if len(users) > 0 {
+		return common.NewInvalidRequestError(user_entity.ErrorEmailAlreadyExist, user_entity.ErrorEmailAlreadyExist.Error(), "ValidateUser")
 	}
 	return nil
 }

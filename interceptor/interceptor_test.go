@@ -26,7 +26,7 @@ func TestAuthHandler(t *testing.T) {
 		expectCode codes.Code
 	}{
 		{
-			name: EmptyAuthHeaderMessage,
+			name: EmptyAuthHeaderMessage.Error(),
 			setup: func() context.Context {
 				md := grpcMetadata.Pairs("authorization", "")
 				return metadata.MD(md).ToIncoming(context.Background())
@@ -34,7 +34,7 @@ func TestAuthHandler(t *testing.T) {
 			expectCode: codes.Unauthenticated,
 		},
 		{
-			name: InvalidAuthHeaderMessage,
+			name: InvalidAuthHeaderMessage.Error(),
 			setup: func() context.Context {
 				md := grpcMetadata.Pairs("authorization", "token")
 				return metadata.MD(md).ToIncoming(context.Background())
@@ -42,7 +42,7 @@ func TestAuthHandler(t *testing.T) {
 			expectCode: codes.Unauthenticated,
 		},
 		{
-			name: UnsupportedAuthTypeMessage,
+			name: UnsupportedAuthTypeMessage.Error(),
 			setup: func() context.Context {
 				md := grpcMetadata.Pairs("authorization", "bearer123 token")
 				return metadata.MD(md).ToIncoming(context.Background())

@@ -24,7 +24,6 @@ func NewAppError(rootErr error, code int, msg string, debugMsg string) *AppError
 	err := errors.New("")
 	if rootErr != nil {
 		err = rootErr
-		// errMsg = rootErr.Error()
 	}
 	return &AppError{
 		Code:         code,

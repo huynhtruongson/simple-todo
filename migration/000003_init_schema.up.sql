@@ -1,0 +1,1 @@
+ALTER TABLE IF EXISTS "users" ADD COLUMN "email" varchar(255) NOT NULL UNIQUE;
