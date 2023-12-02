@@ -1,6 +1,9 @@
 postgres-container:
 	docker run --name postgresC -p 5432:5432 -e POSTGRES_PASSWORD=admin -d postgres:16-alpine
 
+redis-container:
+	docker run --name redisC -p 6379:6379 -d redis:7-alpine
+
 create-db:
 	docker exec -it postgresC createdb --username=postgres --owner=postgres simple_todo
 

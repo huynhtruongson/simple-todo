@@ -8,28 +8,33 @@ import (
 	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
 	mock_repo "github.com/huynhtruongson/simple-todo/mocks/user"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
+	"github.com/huynhtruongson/simple-todo/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 type MockServiceProp struct {
-	DB       *mock_db.DB
-	TX       *mock_db.Tx
-	UserRepo *mock_repo.UserRepo
+	DB           *mock_db.DB
+	TX           *mock_db.Tx
+	UserRepo     *mock_repo.UserRepo
+	WorkerClient *mock_repo.WorkerClient
 }
 
 func NewMockUserService(t *testing.T) (*UserService, *MockServiceProp) {
 	userRepo := mock_repo.NewUserRepo(t)
 	db := mock_db.NewDB(t)
 	tx := mock_db.NewTx(t)
+	wokerClient := mock_repo.NewWorkerClient(t)
 	return &UserService{
-			DB:       db,
-			UserRepo: userRepo,
+			DB:           db,
+			UserRepo:     userRepo,
+			WorkerClient: wokerClient,
 		}, &MockServiceProp{
-			DB:       db,
-			TX:       tx,
-			UserRepo: userRepo,
+			DB:           db,
+			TX:           tx,
+			UserRepo:     userRepo,
+			WorkerClient: wokerClient,
 		}
 }
 func TestCreateUserBiz_CreateUser(t *testing.T) {
@@ -48,12 +53,15 @@ func TestCreateUserBiz_CreateUser(t *testing.T) {
 			user: user_entity.User{
 				FullName: "fullname",
 				Username: "username",
+				Email:    "abc@gmail.com",
 				Password: "123123",
 			},
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{}, nil)
+				prop.UserRepo.EXPECT().GetUsersByEmail(ctx, prop.DB, "abc@gmail.com").Once().Return([]user_entity.User{}, nil)
 				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
 				prop.UserRepo.EXPECT().CreateUser(ctx, prop.TX, mock.Anything).Once().Return(1, nil)
+				prop.WorkerClient.EXPECT().DistributeTaskSendVerifyEmail(ctx, mock.Anything, utils.GenerateMockArguments(3)...).Once().Return(nil)
 				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)
 			},
 			expectErr:    nil,
@@ -70,6 +78,7 @@ func TestCreateUserBiz_CreateUser(t *testing.T) {
 				assert.Equal(t, tt.expectErr, err)
 				return
 			}
+			assert.NoError(t, err)
 			assert.Equal(t, tt.expectUserID, userID)
 		})
 	}

@@ -2,11 +2,14 @@ package user_service
 
 import (
 	"context"
+	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/huynhtruongson/simple-todo/common"
 	"github.com/huynhtruongson/simple-todo/lib"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 	"github.com/huynhtruongson/simple-todo/utils"
+	"github.com/huynhtruongson/simple-todo/worker"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -26,6 +29,15 @@ func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (in
 		userID = id
 		if err != nil {
 			return common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
+		}
+		opts := []asynq.Option{
+			asynq.MaxRetry(10),
+			asynq.ProcessIn(time.Second * 10),
+			asynq.Queue(worker.CriticalQueue),
+		}
+		err = s.WorkerClient.DistributeTaskSendVerifyEmail(ctx, &worker.TaskSendVerifyEmailPayload{Username: user.Username}, opts...)
+		if err != nil {
+			return common.NewInternalError(err, common.InternalErrorMessage, "WorkerClient.DistributeTaskSendVerifyEmail")
 		}
 		return nil
 	}); err != nil {

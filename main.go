@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/huynhtruongson/simple-todo/interceptor"
+	"github.com/huynhtruongson/simple-todo/lib"
 	"github.com/huynhtruongson/simple-todo/pb"
 	auth_service "github.com/huynhtruongson/simple-todo/services/auth"
 	auth_port "github.com/huynhtruongson/simple-todo/services/auth/port"
@@ -19,13 +20,15 @@ import (
 	user_repo "github.com/huynhtruongson/simple-todo/services/user/repository"
 	"github.com/huynhtruongson/simple-todo/token"
 	"github.com/huynhtruongson/simple-todo/utils"
+	"github.com/huynhtruongson/simple-todo/worker"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/jackc/pgx/v5"
+	"github.com/hibiken/asynq"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -41,12 +44,12 @@ func main() {
 	if config.Env == "development" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
-	db, err := pgx.Connect(context.Background(), config.DBAddress)
+	db, err := pgxpool.New(context.Background(), config.DBAddress)
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("unable to connect to database")
 	}
-	defer db.Close(context.Background())
+	// defer db.Close(context.Background())
 
 	// Run data migration
 	runMigration("file://migration", config.DBAddress)
@@ -57,14 +60,20 @@ func main() {
 	}
 	r := gin.Default()
 
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+	taskDistributor := worker.NewTaskDistributor(redisOpt)
+
 	userRepo := user_repo.NewUserRepo()
 	sessionRepo := auth_repo.NewSessionRepo()
 	taskRepo := task_repo.NewTaskRepo()
 
 	authService := auth_service.NewAuthService(db, tokenMaker, userRepo, sessionRepo)
 	taskService := task_service.NewTaskService(db, taskRepo, userRepo)
-	userService := user_service.NewUserService(db, userRepo)
+	userService := user_service.NewUserService(db, taskDistributor, userRepo)
 
+	go runTaskWorker(redisOpt, db, userRepo)
 	// go runGatewayServer(config, authService)
 	// runGRPCServer(config, tokenMaker, userService, authService, taskService)
 	runGinServer(r, config, tokenMaker, authService, userService, taskService)
@@ -178,4 +187,18 @@ func runGatewayServer(
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot serve http gateway server")
 	}
+}
+
+func runTaskWorker(redisOpt asynq.RedisClientOpt, db lib.DB, userRepo auth_service.UserRepo) {
+	server := worker.NewRedisTaskProcessor(
+		redisOpt,
+		db,
+		userRepo,
+	)
+
+	err := server.Start()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to run task worker")
+	}
+	log.Info().Msg("starting task worker")
 }

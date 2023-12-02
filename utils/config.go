@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Env            string        `mapstructure:"ENVIRONMENT"`
 	DBAddress      string        `mapstructure:"DB_ADDRESS"`
+	RedisAddress   string        `mapstructure:"REDIS_ADDRESS"`
 	ApiServerPort  string        `mapstructure:"API_SERVER_PORT"`
 	GRPCServerPort string        `mapstructure:"GRPC_SERVER_PORT"`
 	TokenKey       string        `mapstructure:"TOKEN_KEY"`
