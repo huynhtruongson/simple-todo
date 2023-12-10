@@ -9,7 +9,7 @@ import (
 func TestGenerateUpdatePlaceHolders(t *testing.T) {
 	t.Run("should generate update placeholders correctly", func(t *testing.T) {
 		fields := []string{"name", "age", "phone"}
-		expected := `name=$1, age=$2, phone=$3`
+		expected := `name=$1, age=$2, phone=$4`
 		placeholderStr := GenerateUpdatePlaceHolders(fields)
 		assert.Equal(t, expected, placeholderStr)
 	})
