@@ -39,5 +39,6 @@ func toUser(user *pb.CreateUserRequest) user_entity.User {
 		FullName: user.GetFullname(),
 		Username: user.GetUsername(),
 		Password: user.GetPassword(),
+		Email:    user.GetEmail(),
 	}
 }

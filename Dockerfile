@@ -14,8 +14,13 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 COPY app.env .
+COPY wait-for.sh .
+COPY start.sh .
+COPY migration/ ./migration/
 
-EXPOSE 3000
+EXPOSE 3000 3001
 
 CMD [ "/app/main" ]
+
+ENTRYPOINT [ "/app/start.sh"]
 

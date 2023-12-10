@@ -49,8 +49,6 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("unable to connect to database")
 	}
-	// defer db.Close(context.Background())
-
 	// Run data migration
 	runMigration("file://migration", config.DBAddress)
 
@@ -75,7 +73,7 @@ func main() {
 
 	go runTaskWorker(redisOpt, db, userRepo)
 	// go runGatewayServer(config, authService)
-	// runGRPCServer(config, tokenMaker, userService, authService, taskService)
+	go runGRPCServer(config, tokenMaker, userService, authService, taskService)
 	runGinServer(r, config, tokenMaker, authService, userService, taskService)
 }
 
