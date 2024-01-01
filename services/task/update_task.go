@@ -11,7 +11,7 @@ import (
 )
 
 func (s *TaskService) UpdateTask(ctx context.Context, task task_entity.Task) error {
-	tasks, err := s.TaskRepo.GetTasksByIds(ctx, s.DB, task.UserID, []int{task.TaskID})
+	tasks, err := s.TaskRepo.GetTasksByIds(ctx, s.DB, task.UserID.Int(), []int{task.TaskID.Int()})
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "UpdateTask.TaskRepo.GetTasksByIds")
 	}

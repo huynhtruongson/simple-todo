@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/huynhtruongson/simple-todo/field"
 	mocks "github.com/huynhtruongson/simple-todo/mocks/lib"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 	"github.com/huynhtruongson/simple-todo/utils"
@@ -16,9 +17,9 @@ func TestUserRepo_CreateUser(t *testing.T) {
 	db := mocks.NewTx(t)
 	row := mocks.NewRow(t)
 	mockUser := user_entity.User{
-		FullName: "fullname",
-		Username: "username",
-		Password: "123123",
+		FullName: field.NewString("fullname"),
+		Username: field.NewString("username"),
+		Password: field.NewString("123123"),
 	}
 	expectQuery := `INSERT INTO users (fullname,username,email,password) VALUES ($1,$2,$3,$4) RETURNING user_id`
 	tests := []struct {

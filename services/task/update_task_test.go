@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/huynhtruongson/simple-todo/field"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 
@@ -23,19 +24,19 @@ func TestUpdateTaskBiz_UpdateTask(t *testing.T) {
 		{
 			name: "should update task successfully",
 			task: task_entity.Task{
-				TaskID: 1,
-				Title:  "title",
-				UserID: 1,
+				TaskID: field.NewInt(1),
+				Title:  field.NewString("title"),
+				UserID: field.NewInt(1),
 				Status: 1,
 			},
 			mock: func(prop *MockServiceProp) {
-				prop.TaskRepo.EXPECT().GetTasksByIds(ctx, prop.DB, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
-				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
+				prop.TaskRepo.EXPECT().GetTasksByIds(ctx, prop.DB, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: field.NewInt(1)}}, nil)
+				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{{UserID: field.NewInt(1)}}, nil)
 				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
 				prop.TaskRepo.EXPECT().UpdateTask(ctx, prop.TX, task_entity.Task{
-					TaskID: 1,
-					Title:  "title",
-					UserID: 1,
+					TaskID: field.NewInt(1),
+					Title:  field.NewString("title"),
+					UserID: field.NewInt(1),
 					Status: 1,
 				}).Once().Return(nil)
 				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)

@@ -31,14 +31,14 @@ func (s *TaskService) CreateTask(ctx context.Context, task task_entity.Task) (in
 
 func (s *TaskService) ValidateTask(ctx context.Context, task task_entity.Task) error {
 	switch {
-	case strings.TrimSpace(task.Title) == "":
+	case strings.TrimSpace(task.Title.String()) == "":
 		return common.NewInvalidRequestError(task_entity.ErrorTitleIsEmpty, task_entity.ErrorTitleIsEmpty.Error(), "ValidateTask")
-	case task.UserID == 0:
+	case task.UserID.Int() == 0:
 		return common.NewInvalidRequestError(task_entity.ErrorUserIsEmpty, task_entity.ErrorUserIsEmpty.Error(), "ValidateTask")
 	case task.Status > 2:
 		return common.NewInvalidRequestError(task_entity.ErrorInvalidStatus, task_entity.ErrorInvalidStatus.Error(), "ValidateTask")
 	}
-	users, err := s.UserRepo.GetUsersByUserIds(ctx, s.DB, []int{task.UserID})
+	users, err := s.UserRepo.GetUsersByUserIds(ctx, s.DB, []int{task.UserID.Int()})
 	if err != nil {
 		return common.NewInternalError(err, common.InternalErrorMessage, "ValidateTask.UserRepo.GetUsersByUserIds")
 	}

@@ -28,7 +28,7 @@ func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, in
 		e = common.NewInvalidRequestError(auth_entity.ErrorInvalidCredential, auth_entity.ErrorInvalidCredential.Error(), "")
 		return
 	}
-	if err := utils.CheckPassword(cred.Password, users[0].Password); err != nil {
+	if err := utils.CheckPassword(cred.Password, users[0].Password.String()); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			e = common.NewInvalidRequestError(auth_entity.ErrorInvalidCredential, auth_entity.ErrorInvalidCredential.Error(), "")
 			return
@@ -36,13 +36,13 @@ func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, in
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.CheckPassword")
 		return
 	}
-	acToken, _, err = s.TokenMaker.CreateToken(users[0].UserID, token.AccessTokenDuration, token.AccessToken)
+	acToken, _, err = s.TokenMaker.CreateToken(users[0].UserID.Int(), token.AccessTokenDuration, token.AccessToken)
 	if err != nil {
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.CreateToken")
 		return
 	}
 
-	rfToken, payload, err := s.TokenMaker.CreateToken(users[0].UserID, token.RefreshTokenDuration, token.RefreshToken)
+	rfToken, payload, err := s.TokenMaker.CreateToken(users[0].UserID.Int(), token.RefreshTokenDuration, token.RefreshToken)
 	if err != nil {
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.CreateRefreshToken")
 		return

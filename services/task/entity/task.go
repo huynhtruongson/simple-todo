@@ -6,14 +6,15 @@ import (
 	"fmt"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 )
 
 type Task struct {
-	TaskID      int        `json:"task_id"`
-	UserID      int        `json:"user_id"`
-	Title       string     `json:"title"`
-	Status      TaskStatus `json:"status"`
-	Description *string    `json:"description"`
+	TaskID      field.Int    `json:"task_id"`
+	UserID      field.Int    `json:"user_id"`
+	Title       field.String `json:"title"`
+	Status      TaskStatus   `json:"status"`
+	Description field.String `json:"description"`
 	common.SQLModel
 }
 
