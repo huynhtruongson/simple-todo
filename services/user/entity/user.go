@@ -5,14 +5,15 @@ import (
 	"regexp"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 )
 
 type User struct {
-	UserID   int    `json:"user_id"`
-	FullName string `json:"fullname"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	UserID   field.Int    `json:"user_id"`
+	FullName field.String `json:"fullname"`
+	Username field.String `json:"username"`
+	Email    field.String `json:"email"`
+	Password field.String `json:"password"`
 	common.SQLModel
 }
 

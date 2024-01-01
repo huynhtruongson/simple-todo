@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -14,9 +15,9 @@ func TestListTaskBiz_ListTask(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	mockTask := task_entity.Task{
-		TaskID: 1,
-		UserID: 1,
-		Title:  "title",
+		TaskID: field.NewInt(1),
+		UserID: field.NewInt(1),
+		Title:  field.NewString("title"),
 	}
 	tests := []struct {
 		name      string

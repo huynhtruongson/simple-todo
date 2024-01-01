@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/huynhtruongson/simple-todo/field"
 	mocks "github.com/huynhtruongson/simple-todo/mocks/lib"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 	"github.com/huynhtruongson/simple-todo/utils"
@@ -17,8 +18,8 @@ func TestUserRepo_CreateTask(t *testing.T) {
 	db := mocks.NewDB(t)
 	row := mocks.NewRow(t)
 	mockTask := task_entity.Task{
-		Title:  "title",
-		UserID: 1,
+		Title:  field.NewString("title"),
+		UserID: field.NewInt(1),
 		Status: 1,
 	}
 	expectQuery := `INSERT INTO tasks (user_id,title,status,description) VALUES ($1,$2,$3,$4) RETURNING task_id`
@@ -56,9 +57,9 @@ func TestUserRepo_UpdateTask(t *testing.T) {
 	ctx := context.Background()
 	db := mocks.NewDB(t)
 	mockTask := task_entity.Task{
-		TaskID: 1,
-		Title:  "title",
-		UserID: 1,
+		TaskID: field.NewInt(1),
+		Title:  field.NewString("title"),
+		UserID: field.NewInt(1),
 		Status: 1,
 	}
 	expectQuery := `UPDATE tasks SET user_id=$1, title=$2, status=$3, description=$4,updated_at = now() WHERE task_id = $5`

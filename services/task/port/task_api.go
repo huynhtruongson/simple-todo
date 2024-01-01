@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	"github.com/huynhtruongson/simple-todo/interceptor"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 	"github.com/huynhtruongson/simple-todo/token"
@@ -49,6 +50,7 @@ func (api *TaskAPI) ListTask(ctx *gin.Context) {
 		if ok {
 			code = appErr.Code
 		}
+		ctx.Error(err)
 		ctx.JSON(code, err)
 		return
 	}
@@ -62,7 +64,7 @@ func (api *TaskAPI) CreateTask(ctx *gin.Context) {
 		return
 	}
 	payload := ctx.MustGet(interceptor.AuthorizationPayloadKey).(token.TokenPayload)
-	task.UserID = payload.UserID
+	task.UserID = field.NewInt(payload.UserID)
 	taskID, err := api.TaskService.CreateTask(ctx, task)
 	if err != nil {
 		code := http.StatusBadRequest
@@ -114,8 +116,8 @@ func (api *TaskAPI) UpdateTask(ctx *gin.Context) {
 		return
 	}
 	payload := ctx.MustGet(interceptor.AuthorizationPayloadKey).(token.TokenPayload)
-	task.TaskID = taskId
-	task.UserID = payload.UserID
+	task.TaskID = field.NewInt(taskId)
+	task.UserID = field.NewInt(payload.UserID)
 
 	err = api.TaskService.UpdateTask(ctx, task)
 	if err != nil {

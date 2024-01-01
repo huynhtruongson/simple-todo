@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/huynhtruongson/simple-todo/field"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,7 @@ func TestDeleteTaskBiz_DeleteTask(t *testing.T) {
 			taskID: 1,
 			userID: 1,
 			mock: func(prop *MockServiceProp) {
-				prop.TaskRepo.EXPECT().GetTasksByIds(ctx, prop.DB, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: 1}}, nil)
+				prop.TaskRepo.EXPECT().GetTasksByIds(ctx, prop.DB, 1, []int{1}).Once().Return([]task_entity.Task{{TaskID: field.NewInt(1)}}, nil)
 				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
 				prop.TaskRepo.EXPECT().DeleteTask(ctx, prop.TX, 1).Once().Return(nil)
 				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)

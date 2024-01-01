@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	"github.com/huynhtruongson/simple-todo/interceptor"
 	"github.com/huynhtruongson/simple-todo/pb"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
@@ -30,7 +31,7 @@ func (sv *TaskGRPCService) CreateTask(ctx context.Context, req *pb.CreateTaskReq
 		return nil, status.Error(codes.PermissionDenied, "Fail to parse token payload")
 	}
 	task := toTask(req)
-	task.UserID = payload.UserID
+	task.UserID = field.NewInt(payload.UserID)
 
 	taskID, err := sv.TaskService.CreateTask(ctx, task)
 	if err != nil {
@@ -42,9 +43,13 @@ func (sv *TaskGRPCService) CreateTask(ctx context.Context, req *pb.CreateTaskReq
 }
 
 func toTask(task *pb.CreateTaskRequest) task_entity.Task {
+	description := field.NewNullString()
+	if task.Description != nil {
+		description = field.NewString(*task.Description)
+	}
 	return task_entity.Task{
-		Title:       task.GetTitle(),
+		Title:       field.NewString(task.GetTitle()),
 		Status:      task_entity.TaskStatus(task.GetStatus()),
-		Description: task.Description,
+		Description: description,
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	mock_repo "github.com/huynhtruongson/simple-todo/mocks/auth"
 	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
 	mock_token "github.com/huynhtruongson/simple-todo/mocks/token"
@@ -95,7 +96,7 @@ func TestLoginBiz_Login(t *testing.T) {
 				Password: "wrongPassword",
 			},
 			mock: func(prop *MockServiceProp) {
-				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: 1, Password: hashedPwd}}, nil)
+				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: field.NewInt(1), Password: field.NewString(hashedPwd)}}, nil)
 			},
 			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorInvalidCredential.Error(), ""),
 		},
@@ -106,7 +107,7 @@ func TestLoginBiz_Login(t *testing.T) {
 				Password: "password",
 			},
 			mock: func(prop *MockServiceProp) {
-				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: 1, Password: hashedPwd}}, nil)
+				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: field.NewInt(1), Password: field.NewString(hashedPwd)}}, nil)
 				prop.TokenMaker.EXPECT().CreateToken(1, token.AccessTokenDuration, token.AccessToken).Once().Return("accessToken", mockACTokenPayload, nil)
 				prop.TokenMaker.EXPECT().CreateToken(1, token.RefreshTokenDuration, token.RefreshToken).Once().Return("refreshToken", mockRFTokenPayload, nil)
 				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)

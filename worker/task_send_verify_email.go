@@ -47,6 +47,6 @@ func (p *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Context, tas
 		return fmt.Errorf("user not found")
 	}
 	// TODO: handle logic
-	log.Info().Str("type", task.Type()).Str("payload", string(task.Payload())).Str("email", users[0].Email).Msg("processed task")
+	log.Info().Str("type", task.Type()).Str("payload", string(task.Payload())).Str("email", users[0].Email.String()).Msg("processed task")
 	return nil
 }

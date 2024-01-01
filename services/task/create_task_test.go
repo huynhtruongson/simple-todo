@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	mock_db "github.com/huynhtruongson/simple-todo/mocks/lib"
 	mock_repo "github.com/huynhtruongson/simple-todo/mocks/task"
 	task_entity "github.com/huynhtruongson/simple-todo/services/task/entity"
@@ -50,16 +51,16 @@ func TestCreateTaskBiz_CreateTask(t *testing.T) {
 		{
 			name: "should return taskID when create task successfully",
 			task: task_entity.Task{
-				Title:  "title",
-				UserID: 1,
+				Title:  field.NewString("title"),
+				UserID: field.NewInt(1),
 				Status: 1,
 			},
 			mock: func(prop *MockServiceProp) {
-				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{{UserID: 1}}, nil)
+				prop.UserRepo.EXPECT().GetUsersByUserIds(ctx, prop.DB, []int{1}).Once().Return([]user_entity.User{{UserID: field.NewInt(1)}}, nil)
 				prop.DB.EXPECT().BeginTx(ctx, mock.Anything).Once().Return(prop.TX, nil)
 				prop.TaskRepo.EXPECT().CreateTask(ctx, prop.TX, task_entity.Task{
-					Title:  "title",
-					UserID: 1,
+					Title:  field.NewString("title"),
+					UserID: field.NewInt(1),
 					Status: 1,
 				}).Once().Return(1, nil)
 				prop.TX.EXPECT().Commit(ctx).Once().Return(nil)
@@ -95,7 +96,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 		{
 			name: "should throw error when title is empty",
 			task: task_entity.Task{
-				Title: "",
+				Title: field.NewNullString(),
 			},
 			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(task_entity.ErrorTitleIsEmpty, task_entity.ErrorTitleIsEmpty.Error(), "ValidateTask"),
@@ -103,7 +104,7 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 		{
 			name: "should throw error when userID is empty",
 			task: task_entity.Task{
-				Title: "title",
+				Title: field.NewString("title"),
 			},
 			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(task_entity.ErrorUserIsEmpty, task_entity.ErrorUserIsEmpty.Error(), "ValidateTask"),
@@ -111,8 +112,8 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 		{
 			name: "should throw error when status is invalid",
 			task: task_entity.Task{
-				Title:  "title",
-				UserID: 1,
+				Title:  field.NewString("title"),
+				UserID: field.NewInt(1),
 				Status: 3,
 			},
 			mock:      func(prop *MockServiceProp) {},
@@ -121,8 +122,8 @@ func TestCreateTaskBiz_ValidateTask(t *testing.T) {
 		{
 			name: "should throw error when userID does not exist",
 			task: task_entity.Task{
-				Title:  "title",
-				UserID: 1,
+				Title:  field.NewString("title"),
+				UserID: field.NewInt(1),
 				Status: 1,
 			},
 			mock: func(prop *MockServiceProp) {

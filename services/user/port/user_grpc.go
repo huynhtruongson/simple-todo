@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	"github.com/huynhtruongson/simple-todo/pb"
 	user_entity "github.com/huynhtruongson/simple-todo/services/user/entity"
 )
@@ -36,9 +37,9 @@ func (sv *UserGRPCService) CreateUser(ctx context.Context, userReq *pb.CreateUse
 
 func toUser(user *pb.CreateUserRequest) user_entity.User {
 	return user_entity.User{
-		FullName: user.GetFullname(),
-		Username: user.GetUsername(),
-		Password: user.GetPassword(),
-		Email:    user.GetEmail(),
+		FullName: field.NewString(user.GetFullname()),
+		Username: field.NewString(user.GetUsername()),
+		Password: field.NewString(user.GetPassword()),
+		Email:    field.NewString(user.GetEmail()),
 	}
 }
