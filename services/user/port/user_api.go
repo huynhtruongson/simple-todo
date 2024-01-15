@@ -24,6 +24,16 @@ func NewUserAPIService(userService UserService) *UserAPIService {
 	}
 }
 
+// @Summary		Create user
+// @Description	create user
+// @Tags         user
+// @Accept			json
+// @Produce		json
+// @Param			user	body	user_entity.User	true	"user properties"
+// @Success		200		{object}	common.SuccessResponse{data=boolean}
+// @Failure		500	{object}	common.AppError
+// @Failure		400	{object}	common.AppError
+// @Router			/user/create [post]
 func (sv *UserAPIService) CreateUser(ctx *gin.Context) {
 	var user user_entity.User
 	if err := ctx.ShouldBind(&user); err != nil {

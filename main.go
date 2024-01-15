@@ -27,6 +27,7 @@ func main() {
 		server.WithAuthService(),
 		server.WithUserService(),
 		server.WithTaskService(),
+		server.WithSwaggerDoc(),
 	)
 	server.RunMigration("file://migration")
 	go server.RunTaskWorker()

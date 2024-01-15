@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary		Login
+// @Description	login
+// @Tags         auth
+// @Accept			json
+// @Produce		json
+// @Param			credential	body	auth_entity.Credential	true	"user's credential"
+// @Success		200		{object}	auth_entity.LoginResponse
+// @Failure		500	{object}	common.AppError
+// @Failure		400	{object}	common.AppError
+// @Router			/auth/login [post]
 func (api *AuthAPI) Login(ctx *gin.Context) {
 	var credential auth_entity.Credential
 

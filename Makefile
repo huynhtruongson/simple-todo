@@ -34,5 +34,8 @@ gen-proto:
 evans:
 	evans --host localhost --port 3001 -r repl
 
+swagger:
+	swag init --overridesFile ./docs/.swaggo
+
 unit-test:
 	go test -v -cover ./...

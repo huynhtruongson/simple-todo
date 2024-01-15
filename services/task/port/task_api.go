@@ -31,6 +31,17 @@ func NewTaskAPIService(taskService TaskService) *TaskAPI {
 	}
 }
 
+// @Summary		List tasks
+// @Description	get tasks
+// @Tags         task
+// @Accept			json
+// @Produce		json
+// @Security BasicAuth
+// @Param			page	query	int	false	"page"
+// @Param			limit	query	int	false	"limit"
+// @Success		200		{object}	common.SuccessResponse{data=[]task_entity.Task}
+// @Failure		500	{object}	common.AppError
+// @Router			/task/list [get]
 func (api *TaskAPI) ListTask(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil {
@@ -57,6 +68,17 @@ func (api *TaskAPI) ListTask(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, common.NewSimpleSuccessResponse(tasks))
 }
 
+// @Summary		Create task
+// @Description	create task
+// @Tags         task
+// @Accept			json
+// @Produce		json
+// @Security BasicAuth
+// @Param			user	body	task_entity.Task	true	"task properties"
+// @Success		200		{object}	common.SuccessResponse{data=int}
+// @Failure		500	{object}	common.AppError
+// @Failure		400	{object}	common.AppError
+// @Router			/task/create [post]
 func (api *TaskAPI) CreateTask(ctx *gin.Context) {
 	var task task_entity.Task
 	if err := ctx.ShouldBind(&task); err != nil {
@@ -80,6 +102,17 @@ func (api *TaskAPI) CreateTask(ctx *gin.Context) {
 
 }
 
+// @Summary		Delete task
+// @Description	delete task
+// @Tags         task
+// @Accept			json
+// @Produce		json
+// @Security BasicAuth
+// @Param			id	path	int	true	"task id"
+// @Success		200		{object}	common.SuccessResponse{data=boolean}
+// @Failure		500	{object}	common.AppError
+// @Failure		400	{object}	common.AppError
+// @Router			/task/delete/{id} [delete]
 func (api *TaskAPI) DeleteTask(ctx *gin.Context) {
 	taskId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -103,6 +136,18 @@ func (api *TaskAPI) DeleteTask(ctx *gin.Context) {
 
 }
 
+// @Summary		Update task
+// @Description	update task
+// @Tags         task
+// @Accept			json
+// @Produce		json
+// @Security BasicAuth
+// @Param			id	path	int	true	"task id"
+// @Param			task	body	task_entity.Task	true	"task properties"
+// @Success		200		{object}	common.SuccessResponse{data=boolean}
+// @Failure		500	{object}	common.AppError
+// @Failure		400	{object}	common.AppError
+// @Router			/task/update/{id} [put]
 func (api *TaskAPI) UpdateTask(ctx *gin.Context) {
 	var task task_entity.Task
 

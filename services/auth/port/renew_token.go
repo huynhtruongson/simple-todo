@@ -15,6 +15,16 @@ type RenewTokenResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
+// @Summary		Renew token
+// @Description	renew token
+// @Tags         auth
+// @Accept			json
+// @Produce		json
+// @Param			refresh_token	body	RenewTokenRequest	true	"user's refresh token"
+// @Success		200		{object}	RenewTokenResponse
+// @Failure		500	{object}	common.AppError
+// @Failure		400	{object}	common.AppError
+// @Router			/auth/renew-token [post]
 func (api *AuthAPI) RenewToken(ctx *gin.Context) {
 	var req RenewTokenRequest
 

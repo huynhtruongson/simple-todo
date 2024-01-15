@@ -26,6 +26,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -64,6 +66,7 @@ func (s Server) RunGinServer() {
 	userAPI := user_port.NewUserAPIService(s.userSv)
 	taskAPI := task_port.NewTaskAPIService(s.taskSv)
 	v1 := r.Group("/v1")
+
 	v1.Use(interceptor.LoggingMiddleware)
 	{
 		auth := v1.Group("/auth")
@@ -83,9 +86,10 @@ func (s Server) RunGinServer() {
 			task.GET("/list", taskAPI.ListTask)
 			task.POST("/create", taskAPI.CreateTask)
 			task.PUT("/update/:id", taskAPI.UpdateTask)
-			task.PUT("/delete/:id", taskAPI.DeleteTask)
+			task.DELETE("/delete/:id", taskAPI.DeleteTask)
 		}
 	}
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	r.Run(s.config.ApiServerPort)
 }

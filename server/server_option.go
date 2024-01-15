@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 
+	docs "github.com/huynhtruongson/simple-todo/docs"
 	auth_service "github.com/huynhtruongson/simple-todo/services/auth"
 	auth_repo "github.com/huynhtruongson/simple-todo/services/auth/repository"
 	task_service "github.com/huynhtruongson/simple-todo/services/task"
@@ -74,5 +75,16 @@ func WithAuthService() Option {
 		sessionRepo := auth_repo.NewSessionRepo()
 		authService := auth_service.NewAuthService(s.db, s.tokenMaker, userRepo, sessionRepo)
 		s.authSv = authService
+	}
+}
+
+func WithSwaggerDoc() Option {
+	return func(s *Server) {
+		docs.SwaggerInfo.Title = "Simple Todo API"
+		docs.SwaggerInfo.Description = "This is API documentation of Simple Todo server."
+		docs.SwaggerInfo.Version = "1.0"
+		docs.SwaggerInfo.Host = s.config.ApiServerPort
+		docs.SwaggerInfo.BasePath = "/v1"
+		docs.SwaggerInfo.Schemes = []string{"http", "https"}
 	}
 }
