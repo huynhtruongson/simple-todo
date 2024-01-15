@@ -1,0 +1,315 @@
+definitions:
+  auth_entity.Credential:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  auth_entity.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  auth_port.RenewTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  auth_port.RenewTokenResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+  common.AppError:
+    properties:
+      code:
+        type: integer
+      debug_message:
+        type: string
+      message:
+        type: string
+    type: object
+  common.SuccessResponse:
+    properties:
+      data: {}
+    type: object
+  task_entity.Task:
+    properties:
+      description:
+        type: string
+      status:
+        type: integer
+      task_id:
+        type: integer
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  user_entity.User:
+    properties:
+      email:
+        type: string
+      fullname:
+        type: string
+      password:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login
+      parameters:
+      - description: user's credential
+        in: body
+        name: credential
+        required: true
+        schema:
+          $ref: '#/definitions/auth_entity.Credential'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth_entity.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Login
+      tags:
+      - auth
+  /auth/renew-token:
+    post:
+      consumes:
+      - application/json
+      description: renew token
+      parameters:
+      - description: user's refresh token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          $ref: '#/definitions/auth_port.RenewTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth_port.RenewTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Renew token
+      tags:
+      - auth
+  /task/create:
+    post:
+      consumes:
+      - application/json
+      description: create task
+      parameters:
+      - description: task properties
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/task_entity.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessResponse'
+            - properties:
+                data:
+                  type: integer
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BasicAuth: []
+      summary: Create task
+      tags:
+      - task
+  /task/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete task
+      parameters:
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessResponse'
+            - properties:
+                data:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BasicAuth: []
+      summary: Delete task
+      tags:
+      - task
+  /task/list:
+    get:
+      consumes:
+      - application/json
+      description: get tasks
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/task_entity.Task'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BasicAuth: []
+      summary: List tasks
+      tags:
+      - task
+  /task/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: update task
+      parameters:
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: task properties
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/task_entity.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessResponse'
+            - properties:
+                data:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BasicAuth: []
+      summary: Update task
+      tags:
+      - task
+  /user/create:
+    post:
+      consumes:
+      - application/json
+      description: create user
+      parameters:
+      - description: user properties
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user_entity.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessResponse'
+            - properties:
+                data:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Create user
+      tags:
+      - user
+swagger: "2.0"

@@ -1,0 +1,3 @@
+replace github.com/huynhtruongson/simple-todo/field.Int integer
+replace github.com/huynhtruongson/simple-todo/field.String string
+replace github.com/huynhtruongson/simple-todo/services/task/entity.TaskStatus integer

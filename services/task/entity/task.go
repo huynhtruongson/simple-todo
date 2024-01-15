@@ -18,6 +18,7 @@ type Task struct {
 	common.SQLModel
 }
 
+//go:generate stringer -type TaskStatus -trimprefix TaskStatus
 type TaskStatus int
 
 func (t Task) TableName() string {
@@ -57,10 +58,6 @@ var (
 	ErrorUserNotFound  = errors.New("User not found")
 	ErrorTaskNotFound  = errors.New("Task not found")
 )
-
-func (status TaskStatus) String() string {
-	return TaskStatusString[status]
-}
 
 func parseTaskStatusToEnum(s string) (TaskStatus, error) {
 	for i, status := range TaskStatusString {
