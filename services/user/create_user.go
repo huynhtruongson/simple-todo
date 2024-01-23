@@ -22,14 +22,14 @@ func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (in
 	var userID int
 	hashedPwd, err := utils.HashPassword(user.Password.String())
 	if err != nil {
-		return userID, common.NewInternalError(err, common.InternalErrorMessage+"line25", "UserRepo.CreateUser")
+		return userID, common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
 	}
 	user.Password = field.NewString(hashedPwd)
 	if err := lib.ExecTX(ctx, s.DB, func(ctx context.Context, tx pgx.Tx) error {
 		id, err := s.UserRepo.CreateUser(ctx, tx, user)
 		userID = id
 		if err != nil {
-			return common.NewInternalError(err, common.InternalErrorMessage+"line32", "UserRepo.CreateUser")
+			return common.NewInternalError(err, common.InternalErrorMessage+err.Error(), "UserRepo.CreateUser")
 		}
 		opts := []asynq.Option{
 			asynq.MaxRetry(10),
