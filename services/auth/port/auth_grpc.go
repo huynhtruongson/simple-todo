@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	"github.com/huynhtruongson/simple-todo/pb"
 	auth_entity "github.com/huynhtruongson/simple-todo/services/auth/entity"
 
@@ -36,22 +37,22 @@ func (sv *AuthGRPCService) Login(ctx context.Context, cred *pb.LoginRequest) (*p
 	md := metadata.ExtractIncoming(ctx)
 
 	if userAgent := md.Get(UserAgentGRPCGatewayHeader); len(userAgent) > 0 {
-		loginInfo.UserAgent = userAgent
+		loginInfo.UserAgent = field.NewString(userAgent)
 	}
 	if userAgent := md.Get(UserAgentHeader); len(userAgent) > 0 {
-		loginInfo.UserAgent = userAgent
+		loginInfo.UserAgent = field.NewString(userAgent)
 	}
 	if clientIP := md.Get(xForwardedFor); len(clientIP) > 0 {
-		loginInfo.ClientIP = clientIP
+		loginInfo.ClientIP = field.NewString(clientIP)
 	}
 
 	if p, ok := peer.FromContext(ctx); ok {
-		loginInfo.ClientIP = p.Addr.String()
+		loginInfo.ClientIP = field.NewString(p.Addr.String())
 	}
 
 	acToken, rfToken, err := sv.AuthService.Login(ctx, auth_entity.Credential{
-		Username: cred.GetUsername(),
-		Password: cred.GetPassword(),
+		Username: field.NewString(cred.GetUsername()),
+		Password: field.NewString(cred.GetPassword()),
 	}, loginInfo)
 	if err != nil {
 		return nil, common.MapAppErrorToGRPCError(err, "Login error")

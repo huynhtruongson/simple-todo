@@ -80,6 +80,38 @@ func (_c *DB_BeginTx_Call) RunAndReturn(run func(context.Context, pgx.TxOptions)
 	return _c
 }
 
+// Close provides a mock function with given fields:
+func (_m *DB) Close() {
+	_m.Called()
+}
+
+// DB_Close_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Close'
+type DB_Close_Call struct {
+	*mock.Call
+}
+
+// Close is a helper method to define mock.On call
+func (_e *DB_Expecter) Close() *DB_Close_Call {
+	return &DB_Close_Call{Call: _e.mock.On("Close")}
+}
+
+func (_c *DB_Close_Call) Run(run func()) *DB_Close_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *DB_Close_Call) Return() *DB_Close_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *DB_Close_Call) RunAndReturn(run func()) *DB_Close_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Exec provides a mock function with given fields: ctx, sql, args
 func (_m *DB) Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error) {
 	var _ca []interface{}

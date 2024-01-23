@@ -75,7 +75,7 @@ func (field *String) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (field *String) MarshalJSON() ([]byte, error) {
+func (field String) MarshalJSON() ([]byte, error) {
 	if field.status != Present {
 		return []byte("null"), nil
 	}

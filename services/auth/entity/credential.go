@@ -1,26 +1,30 @@
 package auth_entity
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/huynhtruongson/simple-todo/field"
+)
 
 type Credential struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username field.String `json:"username"`
+	Password field.String `json:"password"`
 }
 
 type LoginInfo struct {
-	UserAgent string `json:"-"`
-	ClientIP  string `json:"-"`
+	UserAgent field.String `json:"-"`
+	ClientIP  field.String `json:"-"`
 }
 
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  field.String `json:"access_token"`
+	RefreshToken field.String `json:"refresh_token"`
 }
 
 func NewLoginResponse(acToken, rfToken string) LoginResponse {
 	return LoginResponse{
-		AccessToken:  acToken,
-		RefreshToken: rfToken,
+		AccessToken:  field.NewString(acToken),
+		RefreshToken: field.NewString(rfToken),
 	}
 }
 
