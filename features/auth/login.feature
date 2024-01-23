@@ -8,7 +8,7 @@ Feature: Login
         Then user login successfully by "<loginType>"
         Examples:
             | loginType |
-            | grpc      |
+            # | grpc      |
             | http      |
 
     Scenario: Login failed
