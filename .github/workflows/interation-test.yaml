@@ -6,6 +6,7 @@ on:
 
 jobs:
   integration-tests:
+    name: all services
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -21,6 +22,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
     - name: Checkout the code into the Go module directory
       uses: actions/checkout@v3
@@ -32,4 +42,7 @@ jobs:
 
     - name: Run app
       run: go run main.go
+    
+    - name: Run integration tests
+      run: ./scripts/integration_test.bash
             
