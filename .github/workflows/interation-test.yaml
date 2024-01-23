@@ -47,5 +47,5 @@ jobs:
       run: sleep 15
 
     - name: Run integration tests
-      run: ./scripts/integration_test.bash
+      run: ./scripts/integration_test.bash auth
             
