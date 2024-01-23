@@ -29,7 +29,7 @@ func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (in
 		id, err := s.UserRepo.CreateUser(ctx, tx, user)
 		userID = id
 		if err != nil {
-			return common.NewInternalError(err, common.InternalErrorMessage+err.Error(), "UserRepo.CreateUser")
+			return common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
 		}
 		opts := []asynq.Option{
 			asynq.MaxRetry(10),
@@ -38,7 +38,7 @@ func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (in
 		}
 		err = s.WorkerClient.DistributeTaskSendVerifyEmail(ctx, &worker.TaskSendVerifyEmailPayload{Username: user.Username.String()}, opts...)
 		if err != nil {
-			return common.NewInternalError(err, common.InternalErrorMessage+"line41", "WorkerClient.DistributeTaskSendVerifyEmail")
+			return common.NewInternalError(err, common.InternalErrorMessage, "WorkerClient.DistributeTaskSendVerifyEmail")
 		}
 		return nil
 	}); err != nil {
