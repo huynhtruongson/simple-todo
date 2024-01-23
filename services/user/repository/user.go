@@ -25,6 +25,7 @@ func (repo *UserRepo) CreateUser(ctx context.Context, db lib.QueryExecer, user u
 		strings.Join(fields[1:], ","),
 		utils.GeneratePlaceHolders(len(fields[1:])),
 	)
+	fmt.Println("==================%s\n", query)
 	var userID int
 	if err := db.QueryRow(ctx, query, values[1:]...).Scan(&userID); err != nil {
 		return userID, err
