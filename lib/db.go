@@ -10,6 +10,7 @@ import (
 type DB interface {
 	QueryExecer
 	TxStarter
+	Close()
 }
 
 type QueryExecer interface {

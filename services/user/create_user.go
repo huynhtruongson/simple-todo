@@ -29,7 +29,7 @@ func (s *UserService) CreateUser(ctx context.Context, user user_entity.User) (in
 		id, err := s.UserRepo.CreateUser(ctx, tx, user)
 		userID = id
 		if err != nil {
-			return common.NewInternalError(err, common.InternalErrorMessage, "UserRepo.CreateUser")
+			return common.NewInternalError(err, common.InternalErrorMessage+err.Error(), "UserRepo.CreateUser")
 		}
 		opts := []asynq.Option{
 			asynq.MaxRetry(10),

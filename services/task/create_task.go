@@ -35,7 +35,7 @@ func (s *TaskService) ValidateTask(ctx context.Context, task task_entity.Task) e
 		return common.NewInvalidRequestError(task_entity.ErrorTitleIsEmpty, task_entity.ErrorTitleIsEmpty.Error(), "ValidateTask")
 	case task.UserID.Int() == 0:
 		return common.NewInvalidRequestError(task_entity.ErrorUserIsEmpty, task_entity.ErrorUserIsEmpty.Error(), "ValidateTask")
-	case task.Status > 2:
+	case task.Status > 2 || task.Status < 0:
 		return common.NewInvalidRequestError(task_entity.ErrorInvalidStatus, task_entity.ErrorInvalidStatus.Error(), "ValidateTask")
 	}
 	users, err := s.UserRepo.GetUsersByUserIds(ctx, s.DB, []int{task.UserID.Int()})

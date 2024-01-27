@@ -63,8 +63,8 @@ func TestLoginBiz_Login(t *testing.T) {
 		{
 			name: "should validate empty username correctly",
 			cred: auth_entity.Credential{
-				Username: "",
-				Password: "password",
+				Username: field.NewString(""),
+				Password: field.NewString("password"),
 			},
 			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorEmptyCredential.Error(), "Login.UserRepo.GetUsersByUsername"),
@@ -72,8 +72,8 @@ func TestLoginBiz_Login(t *testing.T) {
 		{
 			name: "should validate empty password correctly",
 			cred: auth_entity.Credential{
-				Username: "username",
-				Password: "",
+				Username: field.NewString("username"),
+				Password: field.NewString(""),
 			},
 			mock:      func(prop *MockServiceProp) {},
 			expectErr: common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorEmptyCredential.Error(), "Login.UserRepo.GetUsersByUsername"),
@@ -81,8 +81,8 @@ func TestLoginBiz_Login(t *testing.T) {
 		{
 			name: "should validate user not found correctly",
 			cred: auth_entity.Credential{
-				Username: "username",
-				Password: "password",
+				Username: field.NewString("username"),
+				Password: field.NewString("password"),
 			},
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{}, nil)
@@ -92,8 +92,8 @@ func TestLoginBiz_Login(t *testing.T) {
 		{
 			name: "should validate wrong password correctly",
 			cred: auth_entity.Credential{
-				Username: "username",
-				Password: "wrongPassword",
+				Username: field.NewString("username"),
+				Password: field.NewString("wrongPassword"),
 			},
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: field.NewInt(1), Password: field.NewString(hashedPwd)}}, nil)
@@ -103,8 +103,8 @@ func TestLoginBiz_Login(t *testing.T) {
 		{
 			name: "should return token correctly",
 			cred: auth_entity.Credential{
-				Username: "username",
-				Password: "password",
+				Username: field.NewString("username"),
+				Password: field.NewString("password"),
 			},
 			mock: func(prop *MockServiceProp) {
 				prop.UserRepo.EXPECT().GetUsersByUsername(ctx, prop.DB, "username").Once().Return([]user_entity.User{{UserID: field.NewInt(1), Password: field.NewString(hashedPwd)}}, nil)

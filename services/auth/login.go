@@ -15,11 +15,11 @@ import (
 )
 
 func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, info auth_entity.LoginInfo) (acToken string, rfToken string, e error) {
-	if cred.Username == "" || cred.Password == "" {
+	if cred.Username.String() == "" || cred.Password.String() == "" {
 		e = common.NewInvalidRequestError(auth_entity.ErrorEmptyCredential, auth_entity.ErrorEmptyCredential.Error(), "Login.UserRepo.GetUsersByUsername")
 		return
 	}
-	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, cred.Username)
+	users, err := s.UserRepo.GetUsersByUsername(ctx, s.DB, cred.Username.String())
 	if err != nil {
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.UserRepo.GetUsersByUsername")
 		return
@@ -28,7 +28,7 @@ func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, in
 		e = common.NewInvalidRequestError(auth_entity.ErrorInvalidCredential, auth_entity.ErrorInvalidCredential.Error(), "")
 		return
 	}
-	if err := utils.CheckPassword(cred.Password, users[0].Password.String()); err != nil {
+	if err := utils.CheckPassword(cred.Password.String(), users[0].Password.String()); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			e = common.NewInvalidRequestError(auth_entity.ErrorInvalidCredential, auth_entity.ErrorInvalidCredential.Error(), "")
 			return
@@ -47,7 +47,7 @@ func (s *AuthService) Login(ctx context.Context, cred auth_entity.Credential, in
 		e = common.NewInternalError(err, common.InternalErrorMessage, "Login.CreateRefreshToken")
 		return
 	}
-	session := auth_entity.NewSession(payload.ID, payload.UserID, rfToken, payload.ExpiresAt, info.UserAgent, info.ClientIP)
+	session := auth_entity.NewSession(payload.ID, payload.UserID, rfToken, payload.ExpiresAt, info.UserAgent.String(), info.ClientIP.String())
 
 	if err := lib.ExecTX(ctx, s.DB, func(ctx context.Context, tx pgx.Tx) error {
 		return s.SessionRepo.CreateSession(ctx, tx, session)

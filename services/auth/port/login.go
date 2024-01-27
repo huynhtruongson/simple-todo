@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	"github.com/huynhtruongson/simple-todo/field"
 	auth_entity "github.com/huynhtruongson/simple-todo/services/auth/entity"
 
 	"github.com/gin-gonic/gin"
@@ -28,8 +29,8 @@ func (api *AuthAPI) Login(ctx *gin.Context) {
 	}
 
 	acToken, rfToken, err := api.AuthService.Login(ctx, credential, auth_entity.LoginInfo{
-		UserAgent: ctx.Request.UserAgent(),
-		ClientIP:  ctx.ClientIP(),
+		UserAgent: field.NewString(ctx.Request.UserAgent()),
+		ClientIP:  field.NewString(ctx.ClientIP()),
 	})
 	if err != nil {
 		code := http.StatusBadRequest
