@@ -42,10 +42,7 @@ jobs:
 
     - name: Run app
       run: go run main.go &
-    
-    - name: Sleep 15s
-      run: sleep 15
 
     - name: Run integration tests
-      run: ./scripts/integration_test.bash auth
+      run: ./scripts/integration_test.bash
             
