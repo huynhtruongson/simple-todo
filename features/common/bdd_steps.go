@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/huynhtruongson/simple-todo/common"
+	user_repo "github.com/huynhtruongson/simple-todo/services/user/repository"
 	"github.com/huynhtruongson/simple-todo/token"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,7 +43,12 @@ func (s *Suite) UserSignedIn(ctx context.Context) (context.Context, error) {
 	if err != nil {
 		return ctx, fmt.Errorf("init token maker failed,%w\n", err)
 	}
-	acToken, payload, err := tokenMaker.CreateToken(1, time.Minute*15, token.AccessToken)
+	userRepo := user_repo.NewUserRepo()
+	users, err := userRepo.GetUsersByUsername(ctx, s.DB, "usernameseed")
+	if err != nil {
+		return ctx, fmt.Errorf("get users by username failed,%w\n", err)
+	}
+	acToken, payload, err := tokenMaker.CreateToken(users[0].UserID.Int(), time.Minute*15, token.AccessToken)
 	if err != nil {
 		return ctx, fmt.Errorf("create token failed,%w\n", err)
 	}

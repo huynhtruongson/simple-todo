@@ -75,7 +75,7 @@ func InitializeTestSuite(s *common.Suite) func(*godog.TestSuiteContext) {
 }
 
 func initSeedData(db lib.DB) {
-	q := `INSERT INTO users (user_id,fullname,username,email,password) values (2,'fullname seed data','usernameseed','email+seed@gmail.com','seed123123') ON CONFLICT DO NOTHING`
+	q := `INSERT INTO users (fullname,username,email,password) values ('fullname seed data','usernameseed','email+seed@gmail.com','seed123123') ON CONFLICT DO NOTHING`
 	_, err := db.Exec(context.Background(), q)
 	if err != nil {
 		log.Fatal().Err(err).Msg("init seed data error")
