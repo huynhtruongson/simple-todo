@@ -1,6 +1,6 @@
 module github.com/huynhtruongson/simple-todo
 
-go 1.21.2
+go 1.21.6
 
 require (
 	github.com/cucumber/godog v0.13.0
